@@ -2,9 +2,19 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. It reads lyrics from the file tags first, then local `.lrc` files, then [LRCLIB](https://lrclib.net), Kugou, QQ Music, and NetEase Cloud Music. Supports line-level karaoke and a timing editor. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.8.16`, macOS `2.26.8.19`. 中文：[README.md](README.md).
+File versions: Windows `2.26.8.31`, macOS `2.26.8.31`. Product version `2.0.0.2`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
+
+## Updates
+
+### 2.0.0.2 (2026-08-31)
+
+- You can place several panels; each can use **This panel appearance** or **Follow global settings**
+- Double-click a panel or use **Fullscreen** on the context menu; Esc exits (overlay window, layout unchanged)
+- **Enable Klyrics** on the View menu and panel menu is the master switch
+- While layout editing, right-click shows foobar’s Cut / Replace menu instead of the component menu
+- Floating-window hover now shows a tinted rounded background, toolbar, and corner handles; no seek bar and lyrics are no longer dimmed
 
 ## Screenshots
 
@@ -76,13 +86,15 @@ Add the panel:
 | **Default UI (DUI)** | Layout edit mode → insert UI element **Klyrics** (Chinese UI: **快乐歌词**) |
 | **Columns UI (CUI)** | Install Columns UI, set the user interface module to Columns UI in Preferences → Display, and restart. Layout edit → add panel → **Panels** → **Klyrics** |
 
+While layout editing is on, a right-click on the lyrics panel shows foobar’s Cut / Replace menu, not the Klyrics menu. You can place several panels; each can have its own **This panel appearance**.
+
 Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI. Taskbar lyrics are Windows-only.
 
 ## Features
 
-- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines
+- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill
-- **Floating window**: borderless; fully transparent until hover shows a toolbar and seek bar
+- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar)
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
 - **Lyric search**: tags → local `.lrc` → online (LRCLIB / Kugou / QQ / NetEase); manual search can preview before applying
 - **Artwork search**: iTunes and others; separate from lyric search
