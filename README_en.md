@@ -30,6 +30,10 @@ This repository hosts **release binaries** and open community JS scripts. The co
 
 ![Embedded panel](screenshot/win/panel-lrc.png)
 
+![Several panels](screenshot/win/multi-panel.png)
+
+![Layout editing uses foobar’s menu](screenshot/win/living-edit.png)
+
 ![Columns UI transparent background](screenshot/win/transparent-background.png)
 
 ![Desktop lyrics](screenshot/win/desktop-lrc.png)

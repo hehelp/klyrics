@@ -30,6 +30,10 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 
 ![内嵌面板](screenshot/win/panel-lrc.png)
 
+![多块面板](screenshot/win/multi-panel.png)
+
+![布局编辑时右键交给 foobar](screenshot/win/living-edit.png)
+
 ![Columns UI 透明背景](screenshot/win/transparent-background.png)
 
 ![桌面歌词](screenshot/win/desktop-lrc.png)
