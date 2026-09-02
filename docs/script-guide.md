@@ -4,7 +4,7 @@
 
 (注：为了追求极致性能，核心源如 `lrclib`、`kugou`、`qq` 和 `netease` 已通过 C++ 原生实现，无法被脚本覆盖。)
 
-Klyrics 内置了轻量级的 QuickJS 引擎。脚本的职责非常纯粹：拼装 URL、解析 JSON 以及执行正则匹配。**为了保证运行帧率与绝对安全，所有的网络请求、哈希计算与 AES 加解密都已桥接至 C++ 底层，请务必直接调用原生** `Klyrics.`* **API**，切勿引入如 `md5.js` 或 `crypto.js` 这样臃肿的外部依赖。
+Klyrics 内置了轻量级的 QuickJS 引擎。脚本的职责非常纯粹：拼装 URL、解析 JSON 以及执行正则匹配。**为了保证运行帧率与绝对安全，所有的网络请求、哈希计算与 AES / DES / 3DES 加解密都已桥接至 C++ 底层，请务必直接调用原生** `Klyrics.`* **API**，切勿引入如 `md5.js` 或 `crypto.js` 这样臃肿的外部依赖。站点专用解密用 `Klyrics.decrypt(data, "krc"|"qrc")`，不要在脚本里重写酷狗 XOR 或腾讯 QRC 算法。
 
 ## 1. 脚本部署与目录规范
 
@@ -114,16 +114,16 @@ var res = Klyrics.http({
 });
 ```
 
-提示：非 2xx 的 HTTP 状态码不会导致脚本抛错，请自行查验 `res.status`。用户手动取消搜索时，会抛出含 `aborted` 的异常。
+提示：非 2xx 的 HTTP 状态码不会导致脚本抛错，请自行查验 `res.status`[cite: 2]。用户手动取消搜索时，会抛出含 `aborted` 的异常[cite: 2]。
 
 ### 5.2 密码学与编码支持
 
-原生 C++ 提供的算法库，性能零损耗。**所有加密哈希函数的输入均按 UTF-8 字节处理**。
+原生 C++ 提供的算法库，性能零损耗。**所有加密哈希函数的输入均按 UTF-8 字节处理**[cite: 2]。
 
-- **哈希运算 (返回小写 Hex)**：`Klyrics.md5(s)`、`Klyrics.sha256(s)` 以及对应的 HMAC 系列方法。
-- **基础编码**：支持 `urlEncode`、`base64` 与 `hex` 的相互转换。
+- **哈希运算 (返回小写 Hex)**：`Klyrics.md5(s)`、`Klyrics.sha256(s)` 以及对应的 HMAC 系列方法[cite: 2]。
+- **基础编码**：支持 `urlEncode`、`base64` 与 `hex` 的相互转换[cite: 2]。
 
-**AES 加解密利器：**
+**AES / DES / 3DES 加解密：**
 
 JavaScript
 
@@ -133,6 +133,13 @@ var plain = Klyrics.aesDecrypt(json.lyric, "0123456789abcdef0123456789abcdef", {
   mode: "ecb", // 或 "cbc"
   encoding: "hex", // 密钥与数据格式支持 "hex", "base64", "utf8", "raw"
   iv: "" // CBC 模式需提供 16 字节的 IV
+});
+
+// DES 密钥 8 字节；3DES 16 或 24 字节。QRC 一类站点常用 3DES-ECB 且可能没有 PKCS7
+var raw = Klyrics.des3Decrypt(json.lyric, key24, {
+  mode: "ecb",
+  encoding: "base64",
+  padding: "none" // 默认 "pkcs7"
 });
 ```
 
@@ -150,6 +157,13 @@ var text = Klyrics.inflate(bytes);
 var text = Klyrics.inflate(json.content, { encoding: "base64" });
 var text = Klyrics.inflate(json.hex, { encoding: "hex", format: "zlib" });
 ```
+
+**站点解密：** `Klyrics.decrypt(data, type, opt)`。`encoding` 与 `inflate` 相同。
+
+- `"krc"`：跳过 4 字节头、固定密钥 XOR、zlib。酷狗 Base64 正文用 `{ encoding: "base64" }`。
+- `"qrc"`：腾讯非标准 3DES（固定密钥）+ zlib。QQ 接口的 hex 正文用 `{ encoding: "hex" }`。不要自己在脚本里重写这套算法。
+
+解出来若是 KRC / QRC 字戳，脚本再转成 Enhanced LRC 放进 `synced`。仓库示例：`scripts/netease-yrc.js`、`scripts/kugou-krc.js`、`scripts/qq-qrc.js`（不覆盖内置网易 / 酷狗 / QQ 逐行源）。
 
 ## 6. 图片脚本：`searchArt`
 
@@ -180,5 +194,7 @@ function searchArt(query) {
 
 `headers` 只用于 C++ 下载图片（预览和采用同一套）。空数组或没有这个字段，表示不需要 Referer / Cookie 等。单项用 `{ name, value }`（`key` 也可当名字）。不要在脚本里自己拉图片二进制。
 
-启用位置：设置 → 图片 → 把脚本从「可用」移到「使用中」。自动搜图与面板「搜索图片」都会按列表顺序调用。本仓库示例：[`scripts/deezerart.js`](../scripts/deezerart.js)。
+启用位置：设置 → 图片 → 把脚本从「可用」移到「使用中」。自动搜图与面板「搜索图片」都会按列表顺序调用。仓库示例：`scripts/deezerart.js`。
+
+出厂搜索源顺序：网易云逐字 → 酷狗逐字 → QQ 逐字 → LRCLIB → 酷狗 → QQ → 网易云。已保存过源列表的用户：新脚本会出现在「可用」，自己移到「使用中」并排到内置逐行源前面。
 

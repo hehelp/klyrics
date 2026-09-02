@@ -1,6 +1,6 @@
 # Klyrics (foo_klyrics)
 
-A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources ([LRCLIB](https://lrclib.net), Kugou, QQ Music, NetEase Cloud Music, and embedded tags), in that list’s order; sources not added are not searched. Supports standard LRC and Enhanced LRC (inline `<>` word times); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
+A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags start in Available. Sources not added are not searched. Supports standard LRC and Enhanced LRC (inline `<>` word times); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
 File versions: Windows `2.26.9.1`, macOS `2.26.9.1`. Product version `2.0.0.3`. 中文：[README.md](README.md).
 
@@ -106,7 +106,7 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
 - **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar)
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
-- **Lyric search**: local `.lrc` and In-use sources (LRCLIB / Kugou / QQ / NetEase / Embedded, in list order); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` or written to file tags
+- **Lyric search**: local `.lrc` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` or written to file tags
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 
@@ -119,7 +119,7 @@ After a track opens, lyrics are looked up in this order. If none hit, In-use sou
 1. The track’s folder
 2. `lyrics/<artist>/` under the save folder
 3. Extra paths from Preferences
-4. In-use search sources, in list order (LRCLIB / Kugou / QQ / NetEase by default). Embedded lyrics sit beside the online sources, start in Available, and are only read when added to In use, at their position in the list
+4. In-use search sources, in list order (factory: NetEase / Kugou / QQ word-level, then LRCLIB / Kugou / QQ / NetEase). Word-level scripts convert each site’s format to Enhanced LRC before drawing. Embedded lyrics sit beside the online sources, start in Available, and are only read when added to In use. If you already saved a source list, move new scripts from Available to In use on the Search page
 
 Search can save to an `.lrc` or write file tags. **Write lyrics to audio file** on the panel menu writes the current lyrics. External CUE stores per-track fields on the referenced audio, not in the `.cue` text. `.lrc` files accept `[mm:ss.xx]` line stamps and inline `<mm:ss.xx>` word stamps (Enhanced LRC, one phrase per line); the panel hides the tags.
 
@@ -161,6 +161,6 @@ LRCLIB, Kugou, QQ, and NetEase are built in and cannot be replaced by scripts. E
 - Windows: `%APPDATA%\foobar2000-v2\klyrics-data\scripts\`
 - macOS: `~/Library/foobar2000-v2/klyrics-data/scripts/`
 
-This repo’s [`scripts/`](scripts/) folder has examples: `lyricsovh.js` (lyrics) and `deezerart.js` (covers / artist photos). Copy them in, restart foobar, and move the source to **In use** on the Search or Artwork page.
+This repo’s [`scripts/`](scripts/) folder has examples: `lyricsovh.js` (lyrics), `netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js` (word-level → Enhanced LRC), and `deezerart.js` (covers / artist photos). Copy them in, restart foobar, and move the source to **In use** on the Search or Artwork page.
 
 Writing guide: [Community Script Guide](docs/script-guide.en.md).

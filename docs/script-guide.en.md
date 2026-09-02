@@ -4,7 +4,7 @@ Welcome to the Klyrics ecosystem! You can easily expand the search capabilities 
 
 (Note: Built-in sources like `lrclib`, `kugou`, `qq`, and `netease` are natively implemented in C++ for maximum performance and cannot be overridden.)
 
-Klyrics uses an embedded QuickJS engine. Scripts are designed to be lightweight: their only job is to build URLs, parse JSON, and run regular expressions. **To guarantee optimal performance and security, all network requests, hashing, and AES encryptions must be routed through the native `Klyrics.*` API.** Please refrain from bundling external libraries like `md5.js` or `crypto.js`.
+Klyrics uses an embedded QuickJS engine. Scripts are designed to be lightweight: their only job is to build URLs, parse JSON, and run regular expressions. **To guarantee optimal performance and security, all network requests, hashing, and AES / DES / 3DES must be routed through the native `Klyrics.*` API.** Please refrain from bundling external libraries like `md5.js` or `crypto.js`. Use `Klyrics.decrypt(data, "krc"|"qrc")` for site-specific bodies; do not reimplement Kugou XOR or Tencent QRC in the script.
 
 ## 1. Deployment & Folder Structure
 
@@ -121,17 +121,17 @@ var res = Klyrics.http({
 // res.text:   response string
 ```
 
-Tip: Non-2xx HTTP statuses do not throw exceptions—you should handle `res.status` manually. Connection drops or user cancellations will throw an `aborted` error.
+Tip: Non-2xx HTTP statuses do not throw exceptions—you should handle `res.status` manually. Connection drops or user cancellations will throw an `aborted` error[cite: 1].
 
 ### 5.2 Cryptography & Encoding
 
-All hashing and AES functions rely on native C++ implementations for zero-overhead execution. **String inputs are treated as UTF-8 bytes**.
+All hashing and AES / DES / 3DES functions rely on native C++ implementations for zero-overhead execution[cite: 1]. **String inputs are treated as UTF-8 bytes**[cite: 1].
 
-- **Hashing (returns lowercase hex)**: `Klyrics.md5(s)`, `Klyrics.sha1(s)`, `Klyrics.sha256(s)`. (HMAC variants: `Klyrics.hmacMd5(key, s)`, etc.).
+- **Hashing (returns lowercase hex)**: `Klyrics.md5(s)`, `Klyrics.sha1(s)`, `Klyrics.sha256(s)`[cite: 1]. (HMAC variants: `Klyrics.hmacMd5(key, s)`, etc.)[cite: 1].
 
-- **Encoding**: `urlEncode`, `base64Encode`/`base64Decode`, `hexEncode`/`hexDecode`.
+- **Encoding**: `urlEncode`, `base64Encode`/`base64Decode`, `hexEncode`/`hexDecode`[cite: 1].
 
-**AES Encryption/Decryption:**
+**AES / DES / 3DES:**
 
 JavaScript
 
@@ -140,6 +140,13 @@ var plain = Klyrics.aesDecrypt(json.lyric, "0123456789abcdef0123456789abcdef", {
   mode: "ecb", // or "cbc"
   encoding: "hex", // "hex", "base64", "utf8", or "raw"
   iv: "" // 16-byte IV required for CBC
+});
+
+// DES key: 8 bytes. 3DES key: 16 or 24 bytes. QRC-style bodies often use 3DES-ECB without PKCS7.
+var raw = Klyrics.des3Decrypt(json.lyric, key24, {
+  mode: "ecb",
+  encoding: "base64",
+  padding: "none" // default "pkcs7"
 });
 ```
 
@@ -158,6 +165,13 @@ var text = Klyrics.inflate(json.content, { encoding: "base64" });
 var text = Klyrics.inflate(json.hex, { encoding: "hex", format: "zlib" });
 ```
 
+**Site decrypt:** `Klyrics.decrypt(data, type, opt)`. `encoding` matches `inflate`.
+
+- `"krc"`: skip 4-byte header, XOR, zlib. Kugou's Base64 body uses `{ encoding: "base64" }`.
+- `"qrc"`: Tencent's non-standard 3DES (fixed key) + zlib. QQ's hex body uses `{ encoding: "hex" }`. Do not reimplement that cipher in the script.
+
+Convert KRC / QRC word tags to Enhanced LRC and return them in `synced`. Examples: `scripts/netease-yrc.js`, `scripts/kugou-krc.js`, `scripts/qq-qrc.js` (they do not replace the built-in line-LRC sources).
+
 - `encoding`: how to decode the input. Default `raw` (already a byte string). Also `hex` / `base64` / `utf8`.
 - `format`: default `auto` (zlib `78 …` or gzip `1f 8b`, otherwise raw deflate). Or set `"zlib"` / `"gzip"` / `"raw"`.
 - The return value is always the decompressed raw string (lyrics text, or plaintext for a later AES step).
@@ -165,12 +179,12 @@ var text = Klyrics.inflate(json.hex, { encoding: "hex", format: "zlib" });
 
 ## 6. Anti-Patterns (What to Avoid)
 
-To maintain a healthy and secure ecosystem, please avoid the following:
+To maintain a healthy and secure ecosystem, please avoid the following[cite: 1]:
 
-- 🚫 **Reinventing the wheel**: Do not try to rewrite built-in sources (QQ/NetEase/etc.) via JS. The C++ native versions will always be faster and more stable.
+- 🚫 **Reinventing the wheel**: Do not try to rewrite built-in sources (QQ/NetEase/etc.) via JS[cite: 1]. The C++ native versions will always be faster and more stable[cite: 1].
 
 - 🚫 **Bundling crypto / zip libs**: Do not drop `md5.js` or `pako.js` next to the script. Use `Klyrics.*` for hashes, AES, and zlib.
 
-- 🚫 **UI manipulation**: Do not attempt to render lyrics or download image bytes inside the JS. Return the `image_url` and let the C++ Direct2D engine handle the beautiful rendering.
+- 🚫 **UI manipulation**: Do not attempt to render lyrics or download image bytes inside the JS[cite: 1]. Return the `image_url` and let the C++ Direct2D engine handle the beautiful rendering[cite: 1].
 
-(See [`scripts/lyricsovh.js`](../scripts/lyricsovh.js) for a complete example.)
+(Refer to `klyrics-data\scripts\lyricsovh.js` in the repository for a complete, production-ready example[cite: 1].)
