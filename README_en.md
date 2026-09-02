@@ -1,6 +1,6 @@
 # Klyrics (foo_klyrics)
 
-A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources ([LRCLIB](https://lrclib.net), Kugou, QQ Music, NetEase Cloud Music, and embedded tags), in that list’s order; sources not added are not searched. Supports line-level karaoke and a timing editor. Chinese display name **快乐歌词**.
+A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources ([LRCLIB](https://lrclib.net), Kugou, QQ Music, NetEase Cloud Music, and embedded tags), in that list’s order; sources not added are not searched. Supports standard LRC and Enhanced LRC (inline `<>` word times); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
 File versions: Windows `2.26.9.1`, macOS `2.26.9.1`. Product version `2.0.0.3`. 中文：[README.md](README.md).
 
@@ -103,7 +103,7 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 ## Features
 
 - **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch
-- **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill
+- **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
 - **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar)
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
 - **Lyric search**: local `.lrc` and In-use sources (LRCLIB / Kugou / QQ / NetEase / Embedded, in list order); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` or written to file tags
@@ -121,7 +121,7 @@ After a track opens, lyrics are looked up in this order. If none hit, In-use sou
 3. Extra paths from Preferences
 4. In-use search sources, in list order (LRCLIB / Kugou / QQ / NetEase by default). Embedded lyrics sit beside the online sources, start in Available, and are only read when added to In use, at their position in the list
 
-Search can save to an `.lrc` or write file tags. **Write lyrics to audio file** on the panel menu writes the current lyrics. External CUE stores per-track fields on the referenced audio, not in the `.cue` text.
+Search can save to an `.lrc` or write file tags. **Write lyrics to audio file** on the panel menu writes the current lyrics. External CUE stores per-track fields on the referenced audio, not in the `.cue` text. `.lrc` files accept `[mm:ss.xx]` line stamps and inline `<mm:ss.xx>` word stamps (Enhanced LRC, one phrase per line); the panel hides the tags.
 
 ### Panel drag
 
