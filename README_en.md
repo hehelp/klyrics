@@ -2,11 +2,17 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags start in Available. Sources not added are not searched. Supports standard LRC and Enhanced LRC (inline `<>` word times); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.1`, macOS `2.26.9.1`. Product version `2.0.0.3`. 中文：[README.md](README.md).
+File versions: Windows `2.26.9.2`, macOS `2.26.9.2`. Product version `2.0.0.4`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+### 2.0.0.4 (2026-09-03)
+
+- Factory search starts with NetEase / Kugou / QQ word-level scripts, then LRCLIB and each site’s line LRC; scripts convert to Enhanced LRC before drawing
+- Karaoke clips to the current glyph when word timestamps exist; desktop lyrics can fade after pause/stop
+- Windows default save folder is `{foobar profile}\klyrics-data\download`, linked at startup to `%ALLUSERSPROFILE%\Klyrics\download` (files still live in ProgramData)
 
 ### 2.0.0.3 (2026-09-01)
 
@@ -152,7 +158,7 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 Language, Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
 
-Default download folder: Windows `%ALLUSERSPROFILE%\Klyrics\download`, macOS `~/Library/Application Support/Klyrics`.
+Default download folder: Windows `{foobar profile}\klyrics-data\download` (linked to `%ALLUSERSPROFILE%\Klyrics\download`), macOS `~/Library/Application Support/Klyrics`.
 
 ## Community scripts
 

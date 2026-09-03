@@ -2,11 +2,17 @@
 
 foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词默认在可用源。未加入的源不会搜。支持标准 LRC 与 Enhanced LRC（行内 `<>` 逐字时间）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
 
-当前组件文件版本：Windows `2.26.9.1`，macOS `2.26.9.1`。产品版 `2.0.0.3`。English: [README_en.md](README_en.md)。
+当前组件文件版本：Windows `2.26.9.2`，macOS `2.26.9.2`。产品版 `2.0.0.4`。English: [README_en.md](README_en.md)。
 
 本仓库只托管**编译包**和开源的社区 JS 脚本，不公开插件源码。安装包在仓库的 **Releases** 页。
 
 ## 更新
+
+### 2.0.0.4（2026-09-03）
+
+- 出厂搜索源改为网易云 / 酷狗 / QQ 逐字脚本，再 LRCLIB 与各厂逐行源；逐字转成 Enhanced LRC 再绘制
+- 有字戳时卡拉 OK 按字形裁到当前字；暂停/停止后桌面歌词可淡到半透明
+- Windows 默认保存目录改为 foobar 配置目录下的 `klyrics-data\download`，启动时联到 `%ALLUSERSPROFILE%\Klyrics\download`（文件仍在 ProgramData）
 
 ### 2.0.0.3（2026-09-01）
 
@@ -152,7 +158,7 @@ Mac 上 F7 / F8 是系统媒体键，不能用来打轴。
 
 语言、搜索、图片、面板、浮动窗口、桌面、任务栏（仅 Windows）。Windows 上改完要点「应用」；macOS 上改完立刻生效。
 
-默认下载目录：Windows `%ALLUSERSPROFILE%\Klyrics\download`，macOS `~/Library/Application Support/Klyrics`。
+默认下载目录：Windows 为 foobar 配置目录下的 `klyrics-data\download`（联到 `%ALLUSERSPROFILE%\Klyrics\download`），macOS `~/Library/Application Support/Klyrics`。
 
 ## 社区脚本
 
