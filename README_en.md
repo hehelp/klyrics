@@ -12,7 +12,9 @@ This repository hosts **release binaries** and open community JS scripts. The co
 
 - Factory search starts with NetEase / Kugou / QQ word-level scripts, then LRCLIB and each site’s line LRC; scripts convert to Enhanced LRC before drawing
 - Karaoke clips to the current glyph when word timestamps exist; desktop lyrics can fade after pause/stop
-- Windows default save folder is `{foobar profile}\klyrics-data\download`, linked at startup to `%ALLUSERSPROFILE%\Klyrics\download` (files still live in ProgramData)
+- Default save folder is `{foobar profile}/klyrics-data/download`, linked at startup to the shared store (Windows: `%ALLUSERSPROFILE%\Klyrics\download`; macOS: `~/Library/Application Support/Klyrics`)
+- Factory community scripts are bundled and written to `klyrics-data/scripts/` on first launch (existing files are left alone)
+- The lyric search window can open Preferences on the Search page
 
 ### 2.0.0.3 (2026-09-01)
 
@@ -158,7 +160,7 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 Language, Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
 
-Default download folder: Windows `{foobar profile}\klyrics-data\download` (linked to `%ALLUSERSPROFILE%\Klyrics\download`), macOS `~/Library/Application Support/Klyrics`.
+Default download folder: `{foobar profile}/klyrics-data/download`. Windows links to `%ALLUSERSPROFILE%\Klyrics\download`; macOS links to `~/Library/Application Support/Klyrics`.
 
 ## Community scripts
 
