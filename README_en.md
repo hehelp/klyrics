@@ -2,11 +2,19 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags start in Available. Sources not added are not searched. Supports standard LRC and Enhanced LRC (inline `<>` word times); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.2`, macOS `2.26.9.2`. Product version `2.0.0.4`. 中文：[README.md](README.md).
+File versions: Windows `2.26.9.3`, macOS `2.26.9.3`. Product version `2.0.0.5`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+### 2.0.0.5 (2026-09-04)
+
+- Panel / floating window can **wrap overflow** (off by default): wrap to the window width, up to 3 lines per text; karaoke no longer pans left/right when wrap is on
+- Fonts, colors, and drawing styles go into themes (including wrap); apply / export take them along
+- Desktop / taskbar stroke is drawn from the same outline, with less fringe
+- Default save folder is only `{foobar profile}/klyrics-data/download`; no ProgramData / Application Support store or symlink
+- Search can save lyrics next to the audio file; the Chinese UI no longer falls back to English strings
 
 ### 2.0.0.4 (2026-09-03)
 
@@ -110,11 +118,11 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 
 ## Features
 
-- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch
+- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; optional wrap overflow (off by default). Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
-- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar)
+- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); wrap overflow can be enabled separately on this page
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
-- **Lyric search**: local `.lrc` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` or written to file tags
+- **Lyric search**: local `.lrc` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` (including the track’s folder) or written to file tags
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 
@@ -158,9 +166,9 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 **File → Preferences → Display → Klyrics** (Chinese UI: **快乐歌词**)
 
-Language, Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
+Language, Theme, Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
 
-Default download folder: `{foobar profile}/klyrics-data/download`. Windows links to `%ALLUSERSPROFILE%\Klyrics\download`; macOS links to `~/Library/Application Support/Klyrics`.
+Default download folder: `{foobar profile}/klyrics-data/download` (a real folder; no ProgramData or symlink).
 
 ## Community scripts
 
