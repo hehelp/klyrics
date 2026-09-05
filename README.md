@@ -1,12 +1,18 @@
 # 快乐歌词（foo_klyrics）
 
-foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词默认在可用源。未加入的源不会搜。支持标准 LRC 与 Enhanced LRC（行内 `<>` 逐字时间）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
+foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` / `.ttml` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词、amlldb TTML、YouTube 字幕默认在可用源。未加入的源不会搜。支持标准 LRC、Enhanced LRC（行内 `<>` 逐字时间）和 Apple / AMLL 歌词 TTML（注音、译文、罗马音可右键勾选）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
 
-当前组件文件版本：Windows `2.26.9.3`，macOS `2.26.9.3`。产品版 `2.0.0.5`。English: [README_en.md](README_en.md)。
+当前组件文件版本：Windows `2.26.9.4`，macOS `2.26.9.4`。产品版 `2.0.0.6`。English: [README_en.md](README_en.md)。
 
 本仓库只托管**编译包**和开源的社区 JS 脚本，不公开插件源码。安装包在仓库的 **Releases** 页。
 
 ## 更新
+
+### 2.0.0.6（2026-09-05）
+
+- YouTube 字幕源：标题栏可贴 watch / Music 链接；没有 CC 时改拉 YouTube Music 逐行歌词（标准 LRC）
+- 星球大战特效（Windows 面板 / 浮窗）：整屏一条斜率，当前行与走过的行同一透视，近处不再对折放大
+- 本地歌词与内嵌并列，须加入「使用中」才会搜
 
 ### 2.0.0.5（2026-09-04）
 
@@ -122,7 +128,7 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 - **桌面歌词**：平时透明，悬停出底栏；可选横排/竖排、进度条、KTV 描边、3D 阴影、图像填充。暂停/停止后可收到半透明
 - **浮动窗口**：独立无边框窗，平时全透明，悬停出半透明底和工具栏（不画进度条）；本页可单独开超宽自动折行
 - **任务栏歌词**（仅 Windows）：贴在任务栏空位上的一行歌词
-- **搜词**：本地 `.lrc` 与「使用中」的源（出厂含网易云 / 酷狗 / QQ 逐字脚本，再 LRCLIB / 酷狗 / QQ / 网易云 / 内嵌歌词）；未加入的源不搜。手动搜索可预览再选用。搜到的词可保存为 `.lrc`（含歌曲所在目录）或写入音乐标签
+- **搜词**：本地 `.lrc` / `.ttml` 与「使用中」的源（出厂含网易云 / 酷狗 / QQ 逐字脚本，再 LRCLIB / 酷狗 / QQ / 网易云 / 内嵌歌词 / amlldb TTML / YouTube 字幕）；未加入的源不搜。手动搜索可预览再选用。搜到的词可保存为 `.lrc`（含歌曲所在目录）或写入音乐标签
 - **搜图**：iTunes 等来源；与搜词分开
 - **打轴编辑**：给无时间戳或要重打的歌词标时间
 
@@ -135,9 +141,9 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 1. 歌曲所在目录
 2. 保存目录下 `lyrics/<歌手>/`
 3. 设置里的额外路径
-4. 使用中的搜索源，按列表顺序（出厂：网易云 / 酷狗 / QQ 逐字，再 LRCLIB / 酷狗 / QQ / 网易云）。逐字脚本把各厂格式转成 Enhanced LRC 再绘制。内嵌歌词与在线源并列，默认在可用源，只有加入使用中才会读。已保存过源列表的：到搜索页把新源从「可用」移入「使用中」
+4. 使用中的搜索源，按列表顺序（出厂：网易云 / 酷狗 / QQ 逐字，再 LRCLIB / 酷狗 / QQ / 网易云）。逐字脚本把各厂格式转成 Enhanced LRC 再绘制。内嵌歌词、amlldb TTML、YouTube 字幕与在线源并列，默认在可用源，只有加入使用中才会读。已保存过源列表的：到搜索页把新源从「可用」移入「使用中」
 
-搜索页可选保存到 `.lrc` 或写入音乐标签；面板右键「把歌词写入音乐文件」随时写当前词。外置 CUE 写到镜像音频的分轨字段，不改 `.cue` 文本。`.lrc` 认 `[mm:ss.xx]` 行戳和行内 `<mm:ss.xx>` 字戳（一句一行的 Enhanced LRC），面板不画标签。
+搜索页可选保存到 `.lrc` 或写入音乐标签；面板右键「把歌词写入音乐文件」随时写当前词。外置 CUE 写到镜像音频的分轨字段，不改 `.cue` 文本。`.lrc` 认 `[mm:ss.xx]` 行戳和行内 `<mm:ss.xx>` 字戳（一句一行的 Enhanced LRC）；本地还认 Apple / AMLL `.ttml`（注音、译文、罗马音可右键勾选）。保存仍写 `.lrc`，不回写 TTML。
 
 ### 面板拖动
 
@@ -177,6 +183,6 @@ LRCLIB、酷狗、QQ、网易云是组件内置的，不能用脚本覆盖。额
 - Windows：`%APPDATA%\foobar2000-v2\klyrics-data\scripts\`
 - macOS：`~/Library/foobar2000-v2/klyrics-data/scripts/`
 
-本仓库 [`scripts/`](scripts/) 里有示例：`lyricsovh.js`（歌词）、`netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js`（逐字 → Enhanced LRC）、`deezerart.js`（封面/歌手图）。拷进去后重启 foobar，在「搜索」或「图片」页把新源移到「使用中」。
+本仓库 [`scripts/`](scripts/) 里有示例：`lyricsovh.js`（歌词）、`netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js`（逐字 → Enhanced LRC）、`amlldb-ttml.js`（amlldb TTML）、`youtube-captions.js`（YouTube CC / Music 逐行歌词）、`deezerart.js`（封面/歌手图）。拷进去后重启 foobar，在「搜索」或「图片」页把新源移到「使用中」。
 
 编写说明：[社区脚本编写指南](docs/script-guide.md)。
