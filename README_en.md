@@ -2,11 +2,22 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.4`, macOS `2.26.9.4`. Product version `2.0.0.6`. 中文：[README.md](README.md).
+File versions: Windows `2.26.9.5`, macOS `2.26.9.5`. Product version `2.0.0.7`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+
+
+### 2.0.0.7 (2026-09-06)
+
+- Added fisheye and rotating diskc effects
+- Optimized the design of context menu items and the layout of the preference page window
+- Add an option to disable automatic saving of lyrics, while the default option for saving lyrics remains to save them to a specified directory
+- Add the theme "Follow foobar2000" and apply global fonts and colors
+
+
 
 ### 2.0.0.6 (2026-09-05)
 
@@ -16,6 +27,8 @@ This repository hosts **release binaries** and open community JS scripts. The co
 - Star Wars effect (Windows panel / float): one slope across the view so the current line matches the receding half; the near side is no longer inverted
 - Local lyrics sit beside embedded tags and are only searched when added to In use
 
+
+
 ### 2.0.0.5 (2026-09-04)
 
 - Panel / floating window can **wrap overflow** (off by default): wrap to the window width, up to 3 lines per text; karaoke no longer pans left/right when wrap is on
@@ -23,6 +36,8 @@ This repository hosts **release binaries** and open community JS scripts. The co
 - Desktop / taskbar stroke is drawn from the same outline, with less fringe
 - Default save folder is only `{foobar profile}/klyrics-data/download`; no ProgramData / Application Support store or symlink
 - Search can save lyrics next to the audio file; the Chinese UI no longer falls back to English strings
+
+
 
 ### 2.0.0.4 (2026-09-03)
 
@@ -32,11 +47,15 @@ This repository hosts **release binaries** and open community JS scripts. The co
 - Factory community scripts are bundled and written to `klyrics-data/scripts/` on first launch (existing files are left alone)
 - The lyric search window can open Preferences on the Search page
 
+
+
 ### 2.0.0.3 (2026-09-01)
 
 - Embedded lyrics are an optional search source (Available by default; once in In use, they follow that list’s order)
 - Search can **Write to file tags**; the panel menu has **Write lyrics to audio file**
 - External CUE tracks: lyrics are stored on the referenced audio and read back from there. Writing while that image is playing may hitch briefly
+
+
 
 ### 2.0.0.2 (2026-08-31)
 
@@ -46,7 +65,11 @@ This repository hosts **release binaries** and open community JS scripts. The co
 - While layout editing, right-click shows foobar’s Cut / Replace menu instead of the component menu
 - Floating-window hover now shows a tinted rounded background, toolbar, and corner handles; no seek bar and lyrics are no longer dimmed
 
+
+
 ## Screenshots
+
+
 
 ### Windows
 
@@ -84,20 +107,26 @@ This repository hosts **release binaries** and open community JS scripts. The co
 
 ## Supported players
 
-| Item | Requirement |
-| --- | --- |
-| OS | Windows 10 / 11; macOS 11+ |
-| Player | **Windows: foobar2000 2.0+** (32-bit or 64-bit); **Mac: foobar2000 2.6+** |
-| UI | Windows: **Default UI** and **Columns UI** can host the panel (CUI needs [Columns UI](https://yuo.be/columns-ui)). macOS uses the player’s own layout |
-| Not supported | foobar2000 1.x; Windows components cannot be loaded on Mac and vice versa; no vertical taskbar lyrics; no taskbar lyrics on macOS |
+
+| Item          | Requirement                                                                                                                                           |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OS            | Windows 10 / 11; macOS 11+                                                                                                                            |
+| Player        | **Windows: foobar2000 2.0+** (32-bit or 64-bit); **Mac: foobar2000 2.6+**                                                                             |
+| UI            | Windows: **Default UI** and **Columns UI** can host the panel (CUI needs [Columns UI](https://yuo.be/columns-ui)). macOS uses the player’s own layout |
+| Not supported | foobar2000 1.x; Windows components cannot be loaded on Mac and vice versa; no vertical taskbar lyrics; no taskbar lyrics on macOS                     |
+
 
 32-bit and 64-bit are two different DLLs. Do not mix them.
 
-| Player | Component file | Install folder |
-| --- | --- | --- |
-| foobar2000 2.x **32-bit** | `foo_klyrics.dll` | `%APPDATA%\foobar2000-v2\user-components\foo_klyrics\` |
-| foobar2000 2.x **64-bit** | `foo_klyrics.dll` | `%APPDATA%\foobar2000-v2\user-components-x64\foo_klyrics\` |
-| foobar2000 **Mac** | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/` |
+
+| Player                    | Component file          | Install folder                                             |
+| ------------------------- | ----------------------- | ---------------------------------------------------------- |
+| foobar2000 2.x **32-bit** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components\foo_klyrics\`     |
+| foobar2000 2.x **64-bit** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components-x64\foo_klyrics\` |
+| foobar2000 **Mac**        | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/`                 |
+
+
+
 
 ## Install
 
@@ -115,10 +144,12 @@ Remove old `foo_klrc` folders or `foo_klrc.dll` / `foo_klrc64.dll` so two copies
 
 Add the panel:
 
-| UI | How |
-| --- | --- |
-| **Default UI (DUI)** | Layout edit mode → insert UI element **Klyrics** (Chinese UI: **快乐歌词**) |
+
+| UI                   | How                                                                                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Default UI (DUI)** | Layout edit mode → insert UI element **Klyrics** (Chinese UI: **快乐歌词**)                                                                                   |
 | **Columns UI (CUI)** | Install Columns UI, set the user interface module to Columns UI in Preferences → Display, and restart. Layout edit → add panel → **Panels** → **Klyrics** |
+
 
 While layout editing is on, a right-click on the lyrics panel shows foobar’s Cut / Replace menu, not the Klyrics menu. You can place several panels; each can have its own **This panel appearance**.
 
@@ -126,11 +157,11 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 
 ## Features
 
-- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; optional wrap overflow (off by default). Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch
+- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; optional wrap overflow (off by default). Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch. Windows and macOS both support Star Wars, fisheye, and record effects (any effect locks Always smooth scroll). The record effect can take an optional background (none by default); samples are in `[extras/](extras/)`
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
-- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); wrap overflow can be enabled separately on this page
+- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); wrap overflow and effects can be enabled separately on this page
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
-- **Lyric search**: local `.lrc` / `.ttml` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded / amlldb TTML / YouTube captions); sources not added are not searched. Manual search can preview before applying. Results can be saved as `.lrc` (including the track’s folder) or written to file tags
+- **Lyric search**: local `.lrc` / `.ttml` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded / amlldb TTML / YouTube captions); sources not added are not searched. Manual search can preview before applying. Save is a single choice: do not save / write tags / song folder / custom folder
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 
@@ -145,28 +176,34 @@ After a track opens, lyrics are looked up in this order. If none hit, In-use sou
 3. Extra paths from Preferences
 4. In-use search sources, in list order (factory: NetEase / Kugou / QQ word-level, then LRCLIB / Kugou / QQ / NetEase). Word-level scripts convert each site’s format to Enhanced LRC before drawing. Embedded lyrics, amlldb TTML, and YouTube captions sit beside the online sources, start in Available, and are only read when added to In use. If you already saved a source list, move new scripts from Available to In use on the Search page
 
-Search can save to an `.lrc` or write file tags. **Write lyrics to audio file** on the panel menu writes the current lyrics. External CUE stores per-track fields on the referenced audio, not in the `.cue` text. `.lrc` files accept `[mm:ss.xx]` line stamps and inline `<mm:ss.xx>` word stamps (Enhanced LRC, one phrase per line). Local Apple / AMLL `.ttml` is also accepted (furigana, translation, romaji). Saves still write `.lrc`, not TTML.
+Search save is a single choice: do not save / write tags / song folder / custom folder. **Write lyrics to audio file** on the panel menu writes the current lyrics. External CUE stores per-track fields on the referenced audio, not in the `.cue` text. `.lrc` files accept `[mm:ss.xx]` line stamps and inline `<mm:ss.xx>` word stamps (Enhanced LRC, one phrase per line). Local Apple / AMLL `.ttml` is also accepted (furigana, translation, romaji under **Lyric language**). Saves still write `.lrc`, not TTML.
 
 ### Panel drag
 
 Embedded panel only. A click with no movement is ignored.
 
-| Keys | On release |
-| --- | --- |
-| None | Seek to the preview time |
-| Ctrl | Shift **all** timestamps so the line under the crosshair **starts now** |
-| Shift | Same, from that line through the end |
+
+| Keys  | On release                                                              |
+| ----- | ----------------------------------------------------------------------- |
+| None  | Seek to the preview time                                                |
+| Ctrl  | Shift **all** timestamps so the line under the crosshair **starts now** |
+| Shift | Same, from that line through the end                                    |
+
+
+
 
 ### Editor shortcuts
 
 Active when the editor has focus (do not use Space to stamp).
 
-| | Windows | macOS |
-| --- | --- | --- |
-| Stamp and go to next line | F8 | Opt+D |
-| Re-stamp current line | Shift+F8 | Shift+Opt+D |
-| Clear timestamp | F7 | Opt+A |
-| Current line ±0.2 s | Ctrl+− / Ctrl++ | Opt+W / Opt+S |
+
+|                           | Windows         | macOS         |
+| ------------------------- | --------------- | ------------- |
+| Stamp and go to next line | F8              | Opt+D         |
+| Re-stamp current line     | Shift+F8        | Shift+Opt+D   |
+| Clear timestamp           | F7              | Opt+A         |
+| Current line ±0.2 s       | Ctrl+− / Ctrl++ | Opt+W / Opt+S |
+
 
 On Mac, F7 / F8 are system media keys and cannot stamp.
 
@@ -174,7 +211,7 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 **File → Preferences → Display → Klyrics** (Chinese UI: **快乐歌词**)
 
-Language, Theme, Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
+Language, Theme (including **Follow foobar2000**), Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, Search / Panel / Floating window / Desktop are tabbed. Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
 
 Default download folder: `{foobar profile}/klyrics-data/download` (a real folder; no ProgramData or symlink).
 
@@ -185,6 +222,10 @@ LRCLIB, Kugou, QQ, and NetEase are built in and cannot be replaced by scripts. E
 - Windows: `%APPDATA%\foobar2000-v2\klyrics-data\scripts\`
 - macOS: `~/Library/foobar2000-v2/klyrics-data/scripts/`
 
-This repo’s [`scripts/`](scripts/) folder has examples: `lyricsovh.js` (lyrics), `netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js` (word-level → Enhanced LRC), `amlldb-ttml.js` (amlldb TTML), `youtube-captions.js` (YouTube CC / Music timed lyrics), and `deezerart.js` (covers / artist photos). Copy them in, restart foobar, and move the source to **In use** on the Search or Artwork page.
+This repo’s `[scripts/](scripts/)` folder has examples: `lyricsovh.js` (lyrics), `netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js` (word-level → Enhanced LRC), `amlldb-ttml.js` (amlldb TTML), `youtube-captions.js` (YouTube CC / Music timed lyrics), and `deezerart.js` (covers / artist photos). Copy them in, restart foobar, and move the source to **In use** on the Search or Artwork page.
 
 Writing guide: [Community Script Guide](docs/script-guide.en.md).
+
+## Record backgrounds
+
+The record effect has no background by default. Download `disk1c.png` (or the other disc images) from `[extras/](extras/)` and pick it in Panel / Floating window **Effects → Properties**.
