@@ -2,11 +2,32 @@
 
 foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` / `.ttml` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词、amlldb TTML、YouTube 字幕默认在可用源。未加入的源不会搜。支持标准 LRC、Enhanced LRC（行内 `<>` 逐字时间）和 Apple / AMLL 歌词 TTML（注音、译文、罗马音可右键勾选）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
 
-当前组件文件版本：Windows `2.26.9.5`，macOS `2.26.9.5`。产品版 `2.0.0.7`。English: [README_en.md](README_en.md)。
+当前组件文件版本：Windows `2.26.9.7`，macOS `2.26.9.7`。产品版 `2.0.0.9`。English: [README_en.md](README_en.md)。
 
 本仓库只托管**编译包**和开源的社区 JS 脚本，不公开插件源码。安装包在仓库的 **Releases** 页。
 
 ## 更新
+
+### 2.0.0.9（2026-09-11）
+
+- 增加在线翻译歌词的功能，自动把搜索到的歌词翻译成目标语言
+- 其他组件和 JScript Panel 可通过 COM（`Klyrics.Engine`）拉取当前歌词（仅 Windows）
+- 两个推送：加载成功（行数、歌词文件路径；内嵌或未保存到文件时路径为空）；播放切行时推当前行（行号、时间、原文、译文）
+
+
+
+### 2.0.0.8（2026-09-10）
+
+- 重大调整：旧版本的字号按照ps计算，已调整为按照px计算
+- 适配了Intel和Arm架构的macOS
+- 适配了foobar-sdk 1.x，支持 foobar2000 1.x版本
+- 新增 LyricsMania、Dark Lyrics、歌詞 Wiki 三个社区纯文本歌词源（默认在可用源）
+- 描边宽度可调，出厂改为不描边；优化了描边算法
+- 歌词行间距按像素设置（出厂 4px）；双语的原文与译文、折行后的各行都更紧凑
+- 「超宽自动折行」出厂改为开
+- macOS 面板右键菜单与 Windows 对齐，去掉「跟随全局设置」
+
+出厂默认改了，但不会动你已保存的设置。想要新观感，到**首选项 → 显示 → 快乐歌词 → 主题**里点一次「应用」。
 
 ### 2.0.0.7（2026-09-06）
 
@@ -14,6 +35,8 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 - 优化了上下文菜单项的设计，优化了偏好页窗口的布局
 - 增加不自动保存歌词的选项，保存歌词的缺省选项仍是保存到指定目录
 - 主题增加「跟随 foobar2000」，套用全局的字体和颜色
+
+
 
 ### 2.0.0.6（2026-09-05）
 
@@ -23,6 +46,8 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 - 星球大战特效（Windows 面板 / 浮窗）：整屏一条斜率，当前行与走过的行同一透视，近处不再对折放大
 - 本地歌词与内嵌并列，须加入「使用中」才会搜
 
+
+
 ### 2.0.0.5（2026-09-04）
 
 - 面板 / 浮窗可开「超宽自动折行」（默认关）：按窗口宽度折行，每条文本最多 3 行；打开后不再左右跟随
@@ -30,6 +55,8 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 - 桌面 / 任务栏描边改为同一轮廓绘制，减轻毛刺
 - 默认保存目录只建在配置目录 `klyrics-data/download`，不再建 ProgramData / Application Support 或软连接
 - 搜到的歌词可写到歌曲所在目录；中文界面不再落到英文文案
+
+
 
 ### 2.0.0.4（2026-09-03）
 
@@ -39,11 +66,15 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 - 出厂社区脚本打进组件，首次启动时写入 `klyrics-data/scripts/`（已有文件不覆盖）
 - 歌词搜索窗口可打开「首选项」并切到搜索页
 
+
+
 ### 2.0.0.3（2026-09-01）
 
 - 内嵌歌词改为可选搜索源（默认在可用源，加入使用中后按列表顺序使用）
 - 搜索页可「写入到音乐标签」；面板右键「把歌词写入音乐文件」
 - 外置 CUE 分轨：词写到镜像音频的分轨字段，搜索内嵌时从镜像读；正在播放该镜像时可能顿一下
+
+
 
 ### 2.0.0.2（2026-08-31）
 
@@ -53,7 +84,11 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 - 布局编辑时右键交给 foobar，可剪切 / 替换，不再被组件菜单挡住
 - 浮窗悬停改为半透明圆角底 + 工具栏 + 四角锚点，不再画进度条、不再压暗歌词
 
+
+
 ## 截图
+
+
 
 ### Windows
 
@@ -77,6 +112,8 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 
 ![首选项 · 关于](screenshot/win/about-cn.png)
 
+![首选项 · 翻译](screenshot/win/translate-zh.png)
+
 ![组件列表](screenshot/win/components-cn.png)
 
 ### macOS
@@ -91,20 +128,26 @@ foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任�
 
 ## 支持的播放器
 
-| 项目 | 要求 |
-| --- | --- |
-| 系统 | Windows 10 / 11；macOS 11+ |
-| 播放器 | **Windows：foobar2000 2.0 及以上**（32 位与 64 位均可）；**Mac：foobar2000 2.6 及以上** |
-| 界面 | Windows：**Default UI** 与 **Columns UI** 均可嵌面板（CUI 需另装 [Columns UI](https://yuo.be/columns-ui)）。macOS 走播放器自带布局 |
-| 不支持 | foobar2000 1.x；Windows 组件不能装到 Mac，反之亦然；任务栏歌词不做竖条任务栏，macOS 无任务栏歌词 |
+
+| 项目  | 要求                                                                                                            |
+| --- | ------------------------------------------------------------------------------------------------------------- |
+| 系统  | Windows 10 / 11；macOS 11+                                                                                     |
+| 播放器 | **Windows：foobar2000 2.0 及以上**（32 位与 64 位均可）；**Mac：foobar2000 2.6 及以上**                                       |
+| 界面  | Windows：**Default UI** 与 **Columns UI** 均可嵌面板（CUI 需另装 [Columns UI](https://yuo.be/columns-ui)）。macOS 走播放器自带布局 |
+| 不支持 | foobar2000 1.x；Windows 组件不能装到 Mac，反之亦然；任务栏歌词不做竖条任务栏，macOS 无任务栏歌词                                              |
+
 
 32 位与 64 位是两份 DLL，不能混用。
 
-| 播放器 | 组件文件 | 安装目录 |
-| --- | --- | --- |
-| foobar2000 2.x **32 位** | `foo_klyrics.dll` | `%APPDATA%\foobar2000-v2\user-components\foo_klyrics\` |
-| foobar2000 2.x **64 位** | `foo_klyrics.dll` | `%APPDATA%\foobar2000-v2\user-components-x64\foo_klyrics\` |
-| foobar2000 **Mac** | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/` |
+
+| 播放器                     | 组件文件                    | 安装目录                                                       |
+| ----------------------- | ----------------------- | ---------------------------------------------------------- |
+| foobar2000 2.x **32 位** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components\foo_klyrics\`     |
+| foobar2000 2.x **64 位** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components-x64\foo_klyrics\` |
+| foobar2000 **Mac**      | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/`                 |
+
+
+
 
 ## 安装
 
@@ -122,10 +165,12 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 
 加入面板：
 
-| 界面 | 做法 |
-| --- | --- |
-| **Default UI（DUI）** | 布局编辑模式 → 插入 UI 元素 **快乐歌词** |
+
+| 界面                  | 做法                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| **Default UI（DUI）** | 布局编辑模式 → 插入 UI 元素 **快乐歌词**                                                           |
 | **Columns UI（CUI）** | 先安装 Columns UI，在首选项「显示」里把用户界面模块改成 Columns UI 并重启。布局编辑 → 添加面板 → **Panels** → **快乐歌词** |
+
 
 布局编辑时，在歌词面板上右键是 foobar 自己的剪切 / 替换，不会弹出快乐歌词菜单。可并排多块，各块可单独「此面板外观」。
 
@@ -133,13 +178,15 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 
 ## 功能
 
-- **面板**：跟播滚动、卡拉 OK 高亮、封面/歌手图、双语成对显示。可并排多块并各订外观；可开超宽自动折行（默认关）。双击或右键全屏，ESC 退出。查看菜单 / 右键「启用快乐歌词」是总开关。Windows / macOS 均可开星球大战、鱼眼、唱片特效（开特效后锁定始终平滑滚动）；唱片可另选背景图（默认无）；样图在 [`extras/`](extras/)
+- **面板**：跟播滚动、卡拉 OK 高亮、封面/歌手图、双语成对显示。可并排多块并各订外观；超宽自动折行默认开，可关。双击或右键全屏，ESC 退出。查看菜单 / 右键「启用快乐歌词」是总开关。Windows / macOS 均可开星球大战、鱼眼、唱片特效（开特效后锁定始终平滑滚动）；唱片可另选背景图（默认无）；样图在 `[extras/](extras/)`
 - **桌面歌词**：平时透明，悬停出底栏；可选横排/竖排、进度条、KTV 描边、3D 阴影、图像填充。暂停/停止后可收到半透明
 - **浮动窗口**：独立无边框窗，平时全透明，悬停出半透明底和工具栏（不画进度条）；本页可单独开超宽自动折行和特效
 - **任务栏歌词**（仅 Windows）：贴在任务栏空位上的一行歌词
 - **搜词**：本地 `.lrc` / `.ttml` 与「使用中」的源（出厂含网易云 / 酷狗 / QQ 逐字脚本，再 LRCLIB / 酷狗 / QQ / 网易云 / 内嵌歌词 / amlldb TTML / YouTube 字幕）；未加入的源不搜。手动搜索可预览再选用。搜到的词可四选一保存：不自动保存 / 写入音乐标签 / 歌曲所在目录 / 指定位置
 - **搜图**：iTunes 等来源；与搜词分开
 - **打轴编辑**：给无时间戳或要重打的歌词标时间
+- **在线翻译**：搜索到的歌词可自动译成目标语言（百度 / 谷歌等，见首选项「翻译」）
+- **对外接口**：C++ SDK（Windows / macOS）与 COM `Klyrics.Engine`（仅 Windows，给 JScript Panel 等用）。说明见 [歌词服务 SDK](docs/sdk.md)，头文件 [sdk/klyrics_api.h](sdk/klyrics_api.h)
 
 查看菜单分组名跟界面语言走：中文 **快乐歌词**，英文 **Klyrics**。
 
@@ -158,22 +205,28 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 
 仅内嵌面板。单击不移动则忽略。
 
-| 键 | 松手 |
-| --- | --- |
-| 无 | 跳到预览时间 |
-| Ctrl | 全体时间按准星那一句的句首对齐到此刻 |
+
+| 键     | 松手                 |
+| ----- | ------------------ |
+| 无     | 跳到预览时间             |
+| Ctrl  | 全体时间按准星那一句的句首对齐到此刻 |
 | Shift | 从准星那一行起到结尾，同样按句首对齐 |
+
+
+
 
 ### 打轴快捷键
 
 编辑窗口有焦点时生效（不要用空格打点）。
 
-| | Windows | macOS |
-| --- | --- | --- |
-| 打点并跳下一行 | F8 | Opt+D |
-| 重打当前行 | Shift+F8 | Shift+Opt+D |
-| 清除时间戳 | F7 | Opt+A |
+
+|            | Windows         | macOS         |
+| ---------- | --------------- | ------------- |
+| 打点并跳下一行    | F8              | Opt+D         |
+| 重打当前行      | Shift+F8        | Shift+Opt+D   |
+| 清除时间戳      | F7              | Opt+A         |
 | 当前行 ±0.2 秒 | Ctrl+− / Ctrl++ | Opt+W / Opt+S |
+
 
 Mac 上 F7 / F8 是系统媒体键，不能用来打轴。
 
@@ -181,7 +234,7 @@ Mac 上 F7 / F8 是系统媒体键，不能用来打轴。
 
 **文件 → 首选项 → 显示 → 快乐歌词**
 
-语言、主题（可套用「跟随 foobar2000」）、搜索、图片、面板、浮动窗口、桌面、任务栏（仅 Windows）。Windows 上搜索 / 面板 / 浮窗 / 桌面拆成页签。影响歌词绘制的字体、颜色、样式都进主题（含折行）。Windows 上改完要点「应用」；macOS 上改完立刻生效。
+语言、翻译、主题（可套用「跟随 foobar2000」）、搜索、图片、面板、浮动窗口、桌面、任务栏（仅 Windows）。Windows 上搜索 / 面板 / 浮窗 / 桌面拆成页签。影响歌词绘制的字体、颜色、样式都进主题（含折行）。Windows 上改完要点「应用」；macOS 上改完立刻生效。
 
 默认下载目录：foobar 配置目录下的 `klyrics-data/download`（普通文件夹，不再建 ProgramData 或软连接）。
 
@@ -192,10 +245,14 @@ LRCLIB、酷狗、QQ、网易云是组件内置的，不能用脚本覆盖。额
 - Windows：`%APPDATA%\foobar2000-v2\klyrics-data\scripts\`
 - macOS：`~/Library/foobar2000-v2/klyrics-data/scripts/`
 
-本仓库 [`scripts/`](scripts/) 里有示例：`lyricsovh.js`（歌词）、`netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js`（逐字 → Enhanced LRC）、`amlldb-ttml.js`（amlldb TTML）、`youtube-captions.js`（YouTube CC / Music 逐行歌词）、`deezerart.js`（封面/歌手图）。拷进去后重启 foobar，在「搜索」或「图片」页把新源移到「使用中」。
+本仓库 `[scripts/](scripts/)` 里有示例：`lyricsovh.js`（歌词）、`netease-yrc.js` / `kugou-krc.js` / `qq-qrc.js`（逐字 → Enhanced LRC）、`amlldb-ttml.js`（amlldb TTML）、`youtube-captions.js`（YouTube CC / Music 逐行歌词）、`lyricsmania.js` / `darklyrics.js` / `lyricsfandom.js`（三个纯文本歌词站）、`deezerart.js`（封面/歌手图）。拷进去后重启 foobar，在「搜索」或「图片」页把新源移到「使用中」。
 
 编写说明：[社区脚本编写指南](docs/script-guide.md)。
 
+## 歌词服务 SDK
+
+其他组件可以读取 Klyrics 已经解析、对齐、翻译后的歌词。C++ 头文件：[sdk/klyrics_api.h](sdk/klyrics_api.h)。完整说明与 JScript Panel Demo：[歌词服务 SDK](docs/sdk.md)。
+
 ## 唱片背景图
 
-唱片特效默认没有背景图。需要时从本仓库 [`extras/`](extras/) 下载 `disk1c.png`（或同目录其它唱片图），在面板 / 浮窗「特效 → 属性」里选为背景。
+唱片特效默认没有背景图。需要时从本仓库 `[extras/](extras/)` 下载 `disk1c.png`（或同目录其它唱片图），在面板 / 浮窗「特效 → 属性」里选为背景。
