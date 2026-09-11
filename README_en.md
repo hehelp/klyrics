@@ -2,11 +2,22 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.7`, macOS `2.26.9.7`. Product version `2.0.0.9`. 中文：[README.md](README.md).
+File versions: Windows `2.26.9.12`, macOS `2.26.9.12`. Product version `2.0.0.10`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+### 2.0.0.10 (2026-09-12)
+
+- Fixed a bug in version 2.0.0.9 where the lyrics panel was missing from the CUI interface in the 32-bit version of fb2k 2.x.
+- Corrected the default settings for initial installation; it now defaults to the "Classic Dark" theme. 
+- In the preferences, the lyrics settings have been moved from the "Display" node to the "Tools" node. 
+- OBS (and streaming software based on OBS, such as Douyin Live Companion) can now capture the desktop lyrics window and the floating lyrics window. 
+- The "Artwork" tab now controls only the search function; whether a background image is rendered is determined by the background mode of the individual window. 
+- Added an "Image" option for panel and floating window backgrounds: supports automatically searched album art or artist photos, or a user-specified image; display modes include Center, Stretch, Fill, and Tile. 
+- Added a "Filter" function to the search tab: automatic searches are skipped if the title or album name contains text from the list (case-insensitive; filtering by album is ignored if the album field is empty; manual searches are unaffected). 
+- Added two new visual effects for panels and floating windows: "Fan" and "Dial."
 
 ### 2.0.0.9 (2026-09-11)
 
@@ -34,8 +45,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Add an option to disable automatic saving of lyrics, while the default option for saving lyrics remains to save them to a specified directory
 - Add the theme "Follow foobar2000" and apply global fonts and colors
 
-
-
 ### 2.0.0.6 (2026-09-05)
 
 - Apple / AMLL TTML: parse local `.ttml` (furigana, translation, romaji) and add the amlldb TTML source (Available by default)
@@ -43,8 +52,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - YouTube captions: paste a watch / Music URL in the title box; if there is no CC, timed YouTube Music lyrics are fetched as standard LRC
 - Star Wars effect (Windows panel / float): one slope across the view so the current line matches the receding half; the near side is no longer inverted
 - Local lyrics sit beside embedded tags and are only searched when added to In use
-
-
 
 ### 2.0.0.5 (2026-09-04)
 
@@ -54,8 +61,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Default save folder is only `{foobar profile}/klyrics-data/download`; no ProgramData / Application Support store or symlink
 - Search can save lyrics next to the audio file; the Chinese UI no longer falls back to English strings
 
-
-
 ### 2.0.0.4 (2026-09-03)
 
 - Factory search starts with NetEase / Kugou / QQ word-level scripts, then LRCLIB and each site’s line LRC; scripts convert to Enhanced LRC before drawing
@@ -64,15 +69,11 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Factory community scripts are bundled and written to `klyrics-data/scripts/` on first launch (existing files are left alone)
 - The lyric search window can open Preferences on the Search page
 
-
-
 ### 2.0.0.3 (2026-09-01)
 
 - Embedded lyrics are an optional search source (Available by default; once in In use, they follow that list’s order)
 - Search can **Write to file tags**; the panel menu has **Write lyrics to audio file**
 - External CUE tracks: lyrics are stored on the referenced audio and read back from there. Writing while that image is playing may hitch briefly
-
-
 
 ### 2.0.0.2 (2026-08-31)
 
@@ -82,11 +83,7 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - While layout editing, right-click shows foobar’s Cut / Replace menu instead of the component menu
 - Floating-window hover now shows a tinted rounded background, toolbar, and corner handles; no seek bar and lyrics are no longer dimmed
 
-
-
 ## Screenshots
-
-
 
 ### Windows
 
@@ -145,8 +142,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 | foobar2000 **Mac**        | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/`                 |
 
 
-
-
 ## Install
 
 1. Open this repo’s **Releases** page and download the package for your OS.
@@ -176,11 +171,11 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 
 ## Features
 
-- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Several panels can each have their own appearance; wrap overflow is on by default and can be turned off. Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch. Windows and macOS both support Star Wars, fisheye, and record effects (any effect locks Always smooth scroll). The record effect can take an optional background (none by default); samples are in `[extras/](extras/)`
+- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Background can be theme / transparent / custom color / image (Center, Stretch, Fill, Tile). Several panels can each have their own appearance; wrap overflow is on by default and can be turned off. Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch. Windows and macOS both support Star Wars, fisheye, and record effects (any effect locks Always smooth scroll). The record effect can take an optional background (none by default); samples are in `[extras/](extras/)`
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
-- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); wrap overflow and effects can be enabled separately on this page
+- **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); background can also be theme / transparent / custom color / image; wrap overflow and effects can be enabled separately on this page
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
-- **Lyric search**: local `.lrc` / `.ttml` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded / amlldb TTML / YouTube captions); sources not added are not searched. Manual search can preview before applying. Save is a single choice: do not save / write tags / song folder / custom folder
+- **Lyric search**: local `.lrc` / `.ttml` and In-use sources (factory includes NetEase / Kugou / QQ word-level scripts, then LRCLIB / Kugou / QQ / NetEase / Embedded / amlldb TTML / YouTube captions); sources not added are not searched. Search **Filter** skips auto-search when the title or album contains a listed word (case-insensitive; empty album is not filtered by album). Manual search can preview before applying. Save is a single choice: do not save / write tags / song folder / custom folder
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 - **Online translation**: searched lyrics can be translated into a target language automatically (Baidu / Google and others; see Preferences → Translate)
@@ -190,7 +185,7 @@ The View menu group follows the UI language: **快乐歌词** in Chinese, **Klyr
 
 ### Where lyrics come from
 
-After a track opens, lyrics are looked up in this order. If none hit, In-use sources are searched automatically (best match applied, no dialog):
+After a track opens, lyrics are looked up in this order. If none hit, In-use sources are searched automatically (best match applied, no dialog). Auto-search is skipped when the title or album contains a word from Search **Filter** (case-insensitive; empty album is not filtered by album). Local lyrics still load; manual Search lyrics is not blocked. When skipped, the panel shows only track info.
 
 1. The track’s folder
 2. `lyrics/<artist>/` under the save folder
@@ -209,8 +204,6 @@ Embedded panel only. A click with no movement is ignored.
 | None  | Seek to the preview time                                                |
 | Ctrl  | Shift **all** timestamps so the line under the crosshair **starts now** |
 | Shift | Same, from that line through the end                                    |
-
-
 
 
 ### Editor shortcuts
@@ -232,7 +225,7 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 **File → Preferences → Display → Klyrics** (Chinese UI: **快乐歌词**)
 
-Language, Translate, Theme (including **Follow foobar2000**), Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, Search / Panel / Floating window / Desktop are tabbed. Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately.
+Language, Translate, Theme (including **Follow foobar2000**), Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, Search (Save lyrics / Extra search folders / Sources / Filter) / Panel / Floating window / Desktop are tabbed. Panel / float background can be theme, transparent, custom color, or image. The Artwork page only controls search. Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately. First install applies Classic Dark.
 
 Default download folder: `{foobar profile}/klyrics-data/download` (a real folder; no ProgramData or symlink).
 
