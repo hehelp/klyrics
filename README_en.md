@@ -223,7 +223,7 @@ On Mac, F7 / F8 are system media keys and cannot stamp.
 
 ## Preferences
 
-**File → Preferences → Display → Klyrics** (Chinese UI: **快乐歌词**)
+**File → Preferences → Tools → Klyrics** (Chinese UI: **快乐歌词**)
 
 Language, Translate, Theme (including **Follow foobar2000**), Search, Artwork, Panel, Floating window, Desktop, and Taskbar (Windows only). On Windows, Search (Save lyrics / Extra search folders / Sources / Filter) / Panel / Floating window / Desktop are tabbed. Panel / float background can be theme, transparent, custom color, or image. The Artwork page only controls search. Fonts, colors, and drawing styles go into themes (including wrap). On Windows, click **Apply** after changes. On macOS, changes apply immediately. First install applies Classic Dark.
 
