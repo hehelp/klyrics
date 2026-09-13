@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Klyrics WebSocket Demo</title>
+  <style>
+    :root {
+      --page: #0f1115;
+      --card: #181b22;
+      --text: #e8e8ec;
+      --muted: #9a9aa8;
+      --accent: #6cb6ff;
+      --border: #2a2e38;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+      background:
+        radial-gradient(900px 480px at 15% -10%, #1c2a44 0%, transparent 55%),
+        radial-gradient(700px 400px at 90% 0%, #2a1d33 0%, transparent 50%),
+        var(--page);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+    .lead {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      max-width: 36rem;
+      line-height: 1.5;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: end;
+      justify-content: center;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    input {
+      width: 7.5rem;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #10131a;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    input#url { width: 16rem; }
+    button {
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #081018;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.06); }
+    .stage {
+      padding: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+    canvas {
+      display: block;
+      border-radius: 8px;
+      max-width: 100%;
+    }
+    #status {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.2em;
+    }
+    code { color: #b7d7ff; }
+  </style>
+</head>
+<body>
+  <h1>Klyrics 歌词画布 Demo</h1>
+  <p class="lead">
+    通过本机 WebSocket（默认 <code>ws://127.0.0.1:9999</code>）读取面板模板样式与歌词并绘制。
+    请先启动 foobar2000 并在「工具 → 快乐歌词 → 更新」启用本机接口。
+    在画布上<strong>拖拽</strong>歌词可预览并跳转播放进度；<strong>右键</strong>打开与面板对齐的菜单（仅含已实现接口的项）。
+  </p>
+
+  <div class="toolbar">
+    <label>宽 (px)
+      <input id="width" type="number" min="120" max="2400" value="420" />
+    </label>
+    <label>高 (px)
+      <input id="height" type="number" min="120" max="1600" value="560" />
+    </label>
+    <label>WebSocket
+      <input id="url" type="text" value="ws://127.0.0.1:9999" />
+    </label>
+    <button type="button" id="apply">应用并连接</button>
+  </div>
+
+  <div class="stage">
+    <canvas id="lyric" width="420" height="560"></canvas>
+  </div>
+  <div id="status">尚未连接</div>
+
+  <script src="klyrics_client.js"></script>
+  <script src="klyrics.js"></script>
+  <script>
+    (function () {
+      var panel = null;
+      var canvas = document.getElementById("lyric");
+      var statusEl = document.getElementById("status");
+
+      function start() {
+        var width = Math.max(120, parseInt(document.getElementById("width").value, 10) || 420);
+        var height = Math.max(120, parseInt(document.getElementById("height").value, 10) || 560);
+        var url = document.getElementById("url").value.trim() || Klyrics.DEFAULT_URL;
+        document.getElementById("width").value = width;
+        document.getElementById("height").value = height;
+
+        if (panel) {
+          panel.destroy();
+          panel = null;
+        }
+        panel = Klyrics.mount(canvas, {
+          width: width,
+          height: height,
+          url: url,
+          onStatus: function (text) {
+            statusEl.textContent = text;
+          },
+        });
+      }
+
+      document.getElementById("apply").addEventListener("click", start);
+      start();
+    })();
+  </script>
+</body>
+</html>
