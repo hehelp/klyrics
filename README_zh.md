@@ -1,8 +1,10 @@
+<p align="right"><a href="README.md">English</a> · <b>中文</b></p>
+
 # 快乐歌词（foo_klyrics）
 
 foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` / `.ttml` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词、amlldb TTML、YouTube 字幕默认在可用源。未加入的源不会搜。支持标准 LRC、Enhanced LRC（行内 `<>` 逐字时间）和 Apple / AMLL 歌词 TTML（注音、译文、罗马音可右键勾选）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
 
-当前组件文件版本：Windows `2.26.9.14`，macOS `2.26.9.14`。产品版 `2.0.0.12`。English: [README.md](README.md)。
+当前组件文件版本：Windows `2.26.9.14`，macOS `2.26.9.14`。产品版 `2.0.0.12`。
 
 本仓库只托管**编译包**和开源的社区 JS 脚本，不公开插件源码。安装包在仓库的 **Releases** 页。
 
