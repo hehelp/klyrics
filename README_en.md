@@ -2,11 +2,20 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.13`, macOS `2.26.9.13`. Product version `2.0.0.11`. 中文：[README.md](README.md).
+File versions: Windows `2.26.9.14`, macOS `2.26.9.14`. Product version `2.0.0.12`. 中文：[README.md](README.md).
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+
+
+### 2.0.0.12 (2026-09-13)
+
+- Lyric engine service commands: silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar show & lock, seek, panel style
+- Local WebSocket on Windows / macOS (default `127.0.0.1:9999`; toggle or change port under Preferences → Updates); COM embeds a type library for JSplitter 3.8+
+- Config-changed push; browser demo split into `klyrics_client.js` (API) and `klyrics.js` (canvas); JSplitter self-check script `klyrics_com.js`
+- Desktop lyric line spacing is adjustable; paired-line gap follows that setting
 
 
 
@@ -209,7 +218,7 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 - **Online translation**: searched lyrics can be translated into a target language automatically (Baidu / Google and others; see Preferences → Translate)
-- **External API**: C++ SDK (Windows / macOS) and COM `Klyrics.Engine` (Windows only, for JScript Panel and similar hosts). See the [lyric engine SDK](docs/sdk.en.md) and [sdk/klyrics_api.h](sdk/klyrics_api.h)
+- **External API**: C++ SDK (Windows / macOS), COM `Klyrics.Engine` (Windows only, for JScript Panel and similar hosts), and a local WebSocket (`127.0.0.1:9999`, can be turned off). You can pull the current lyrics, or search, open windows, change layers, save, open a preferences page, and control desktop / float / taskbar lyrics. See the [lyric engine SDK](docs/sdk.en.md) and [sdk/klyrics_api.h](sdk/klyrics_api.h)
 
 The View menu group follows the UI language: **快乐歌词** in Chinese, **Klyrics** in English.
 
@@ -274,7 +283,7 @@ Writing guide: [Community Script Guide](docs/script-guide.en.md).
 
 ## Lyric engine SDK
 
-Other components can read lyrics that Klyrics has already parsed, aligned, and translated. C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md).
+Other components can read lyrics that Klyrics has already parsed, aligned, and translated, and can send service commands (silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar, panel style). C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes, COM / WebSocket map, and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md). Browser canvas sample: [sdk/klyrics.html](sdk/klyrics.html) ([sdk/klyrics_client.js](sdk/klyrics_client.js) API layer + [sdk/klyrics.js](sdk/klyrics.js) renderer).
 
 ## Record backgrounds
 

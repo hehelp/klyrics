@@ -2,11 +2,18 @@
 
 foobar2000 视觉歌词组件：内嵌面板、透明桌面歌词、Windows 任务栏歌词。歌词来自本地 `.lrc` / `.ttml` 和首选项「使用中」的源。出厂先走网易云 / 酷狗 / QQ **逐字**社区脚本，再 [LRCLIB](https://lrclib.net)、酷狗、QQ、网易云逐行源；内嵌歌词、amlldb TTML、YouTube 字幕默认在可用源。未加入的源不会搜。支持标准 LRC、Enhanced LRC（行内 `<>` 逐字时间）和 Apple / AMLL 歌词 TTML（注音、译文、罗马音可右键勾选）；卡拉 OK 有字戳则按字形裁到当前字。英文显示名 **Klyrics**。
 
-当前组件文件版本：Windows `2.26.9.13`，macOS `2.26.9.13`。产品版 `2.0.0.11`。English: [README_en.md](README_en.md)。
+当前组件文件版本：Windows `2.26.9.14`，macOS `2.26.9.14`。产品版 `2.0.0.12`。English: [README_en.md](README_en.md)。
 
 本仓库只托管**编译包**和开源的社区 JS 脚本，不公开插件源码。安装包在仓库的 **Releases** 页。
 
 ## 更新
+
+### 2.0.0.12（2026-09-13）
+
+- 歌词引擎补齐服务命令：静默搜词、选歌词 / 编辑窗、图层、保存、偏好页、桌面 / 浮窗 / 任务栏显示与锁定、跳转进度、面板样式
+- Windows / macOS 增加本机 WebSocket（默认 `127.0.0.1:9999`，偏好「更新」页可关或改端口）；COM 内嵌类型库，兼容 JSplitter 3.8+
+- 新增配置变更推送；浏览器 Demo 拆成接口层 `klyrics_client.js` 与画布 `klyrics.js`，另附 JSplitter 自检脚本 `klyrics_com.js`
+- 桌面歌词行间距可调；成对显示时两行间距跟随该设置
 
 ### 2.0.0.11（2026-09-12）
 
@@ -207,7 +214,7 @@ C:\Users\<用户名>\AppData\Roaming\foobar2000-v2\user-components-x64\foo_klyri
 - **搜图**：iTunes 等来源；与搜词分开
 - **打轴编辑**：给无时间戳或要重打的歌词标时间
 - **在线翻译**：搜索到的歌词可自动译成目标语言（百度 / 谷歌等，见首选项「翻译」）
-- **对外接口**：C++ SDK（Windows / macOS）与 COM `Klyrics.Engine`（仅 Windows，给 JScript Panel 等用）。说明见 [歌词服务 SDK](docs/sdk.md)，头文件 [sdk/klyrics_api.h](sdk/klyrics_api.h)
+- **对外接口**：C++ SDK（Windows / macOS）、COM `Klyrics.Engine`（仅 Windows，给 JScript Panel 等用）、本机 WebSocket（`127.0.0.1:9999`，可关）。可拉取当前歌词，也可搜词、开窗口、改图层、保存、打开偏好页、控制桌面 / 浮窗 / 任务栏。说明见 [歌词服务 SDK](docs/sdk.md)，头文件 [sdk/klyrics_api.h](sdk/klyrics_api.h)
 
 查看菜单分组名跟界面语言走：中文 **快乐歌词**，英文 **Klyrics**。
 
@@ -272,7 +279,7 @@ LRCLIB、酷狗、QQ、网易云是组件内置的，不能用脚本覆盖。额
 
 ## 歌词服务 SDK
 
-其他组件可以读取 Klyrics 已经解析、对齐、翻译后的歌词。C++ 头文件：[sdk/klyrics_api.h](sdk/klyrics_api.h)。完整说明与 JScript Panel Demo：[歌词服务 SDK](docs/sdk.md)。
+其他组件可以读取 Klyrics 已经解析、对齐、翻译后的歌词，也可以发服务命令（静默搜词、选歌词 / 编辑窗、图层、保存、偏好页、桌面 / 浮窗 / 任务栏、面板样式）。C++ 头文件：[sdk/klyrics_api.h](sdk/klyrics_api.h)。完整说明、COM / WebSocket 对照与 JScript Panel Demo：[歌词服务 SDK](docs/sdk.md)。浏览器画布示例：[sdk/klyrics.html](sdk/klyrics.html)（[sdk/klyrics_client.js](sdk/klyrics_client.js) 接口层 + [sdk/klyrics.js](sdk/klyrics.js) 绘制）。
 
 ## 唱片背景图
 

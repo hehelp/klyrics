@@ -2,7 +2,8 @@
 
 // Klyrics 对外 SDK。第三方组件只需包含本头文件。
 // 使用前请先包含 foobar2000 SDK（#include <foobar2000.h>）。
-// 自 2.0.0.9 起提供。说明见仓库 docs/sdk.md / docs/sdk.en.md。
+
+#include <cstdint>
 
 // ============================================================================
 // 1. 结构化歌词数据包 (ABI 极致安全设计)
@@ -58,6 +59,9 @@ public:
         size_t line_count,
         const char* file_path
     ) = 0;
+
+    // 面板模板 / 歌词图层等外观配置已改变。style_json 与 get_panel_style_json 相同；下次推送前失效。
+    virtual void on_config_changed(const char* style_json) { (void)style_json; }
 };
 
 // ============================================================================
@@ -73,12 +77,54 @@ class NOVTABLE klyrics_api : public service_base {
 public:
     // p_track 为空则查当前曲；指针由 Klyrics 托管，禁止 delete，歌词更新后失效。
     virtual bool query_lyrics(metadb_handle_ptr p_track, klyrics_result*& out_result) = 0;
+
+    // 新曲即使没有任何歌词窗口，也自动搜索并下载。对应偏好「总是搜索歌词」。
+    virtual void set_always_search(bool on) = 0;
+    virtual bool always_search() const = 0;
+
+    // 按元数据静默搜索（AutoBest）并应用到当前曲。空字段用当前曲补齐。
+    virtual bool search_lyrics(const char* title, const char* artist, const char* album) = 0;
+    virtual void show_search_window() = 0;
+    virtual void show_edit_window() = 0;
+
+    // 歌词图层组合值：Ruby=1, Original=2, Translation=4, Romaji=8。
+    virtual void set_lyric_layers(std::uint32_t layers) = 0;
+    virtual std::uint32_t lyric_layers() const = 0;
+
+    virtual bool save_lyrics() = 0;
+
+    // 短名（desktop / search.save / …）或 {GUID}。空或 about 打开根页。
+    virtual bool show_preferences(const char* page_id) = 0;
+
+    virtual void set_desktop_visible(bool on) = 0;
+    virtual void set_desktop_locked(bool on) = 0;
+    virtual bool desktop_visible() const = 0;
+    virtual void set_float_visible(bool on) = 0;
+    virtual void set_float_locked(bool on) = 0;
+    virtual bool float_visible() const = 0;
+    virtual void set_taskbar_visible(bool on) = 0;
+    virtual void set_taskbar_locked(bool on) = 0;
+    virtual bool taskbar_visible() const = 0;
+
+    // 面板模板样式 JSON（UTF-8）。指针由 Klyrics 托管，下次调用本方法后失效，请立刻拷走。
+    virtual const char* get_panel_style_json() = 0;
+
+    // 跳到指定秒。当前曲不能 seek 时返回 false。
+    virtual bool seek(double time_sec) = 0;
+    virtual double playback_position() const = 0;
+    virtual double playback_length() const = 0;
 };
 
-// COM / ActiveX：ProgID = Klyrics.Engine
-// {A91C4E70-2D58-4B13-8E6A-5F30C7D1B849}
+// COM / ActiveX：ProgID = Klyrics.Engine（内嵌类型库，供 JSplitter 等调用 GetTypeInfo）
+// CLSID {A91C4E70-2D58-4B13-8E6A-5F30C7D1B849}
+// IID   {5E2A9C14-7B83-4F1A-9D6E-18C4A0B3F572}
+// LIBID {6F3B0D25-8C94-4A2B-8E7F-29D5B1C40683}
 static const GUID guid_klyrics_engine =
     {0xa91c4e70, 0x2d58, 0x4b13, {0x8e, 0x6a, 0x5f, 0x30, 0xc7, 0xd1, 0xb8, 0x49}};
+static const GUID guid_klyrics_engine_iface =
+    {0x5e2a9c14, 0x7b83, 0x4f1a, {0x9d, 0x6e, 0x18, 0xc4, 0xa0, 0xb3, 0xf5, 0x72}};
+static const GUID guid_klyrics_engine_lib =
+    {0x6f3b0d25, 0x8c94, 0x4a2b, {0x8e, 0x7f, 0x29, 0xd5, 0xb1, 0xc4, 0x06, 0x83}};
 
 #if defined(_MSC_VER)
 #define KLYRICS_GUID_DEF __declspec(selectany)
