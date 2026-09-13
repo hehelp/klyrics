@@ -1,8 +1,10 @@
+<p align="right"><b>English</b> · <a href="README_zh.md">中文</a></p>
+
 # Klyrics (foo_klyrics)
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.14`, macOS `2.26.9.14`. Product version `2.0.0.12`. 中文：[README_zh.md](README_zh.md).
+File versions: Windows `2.26.9.14`, macOS `2.26.9.14`. Product version `2.0.0.12`.
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
