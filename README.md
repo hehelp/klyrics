@@ -1,4 +1,4 @@
-<p align="right"><b>English</b> · <a href="README_zh.md">中文</a></p>
+<p align="left"><b>English</b> · <a href="README_zh.md">中文</a></p>
 
 # Klyrics (foo_klyrics)
 

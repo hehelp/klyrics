@@ -1,4 +1,4 @@
-<p align="right"><a href="README.md">English</a> · <b>中文</b></p>
+<p align="left"><a href="README.md">English</a> · <b>中文</b></p>
 
 # 快乐歌词（foo_klyrics）
 
