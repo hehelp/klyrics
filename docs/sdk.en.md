@@ -96,7 +96,8 @@ Example: original + translation = `6`. All four layers = `15` (factory default).
 | `translate` | Translate |
 | `theme` | Theme |
 | `artwork` | Artwork |
-| `privacy` | Updates (includes the WebSocket toggle) |
+| `privacy` | Updates |
+| `websocket` | WebSocket Service |
 | `panel` | Panel template |
 | `panel.fx` | Panel template → Effects |
 | `desktop` | Desktop |
@@ -324,7 +325,7 @@ The full script is [`github/sdk/klyrics_com.js`](../sdk/klyrics_com.js): create 
 
 ## Local WebSocket
 
-Windows and macOS. Binds `127.0.0.1` only. Enabled by default, port **9999**. Toggle it or change the port (`1`–`65535`; invalid values fall back to 9999) under **Tools → Klyrics → Updates**. Changes apply as soon as you click Apply. If the port is in use, the console logs `WebSocket bind 127.0.0.1:<port> failed` and the component stays up.
+Windows and macOS. Binds `127.0.0.1` only. Enabled by default, port **9999**. Toggle it or change the port (`1`–`65535`; invalid values fall back to 9999) under **Tools → Klyrics → WebSocket Service**. Changes apply as soon as you click Apply. If the port is in use, the console logs `WebSocket bind 127.0.0.1:<port> failed`, the preferences page shows an error under the port field, and the component stays up. A later foobar2000 instance that cannot bind the same port has no WebSocket.
 
 Protocol: RFC 6455 text frames, one JSON object per frame. The client sends a command; the server replies once. Load / line-change events are **pushed** on their own; they are not replies to a command.
 

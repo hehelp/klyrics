@@ -96,7 +96,8 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 | `translate` | 翻译 |
 | `theme` | 主题 |
 | `artwork` | 图片 |
-| `privacy` | 更新（含 WebSocket 开关） |
+| `privacy` | 更新 |
+| `websocket` | Websocket服务 |
 | `panel` | 面板模板 |
 | `panel.fx` | 面板模板 → 效果 |
 | `desktop` | 桌面 |
@@ -324,7 +325,7 @@ var len = k.GetPlaybackLength();
 
 ## WebSocket（本机）
 
-Windows / macOS。只绑 `127.0.0.1`，出厂**开启**，端口 **9999**。偏好 **工具 → 快乐歌词 → 更新** 可关，或改端口（`1`–`65535`，非法值回退 9999）。点「应用」后立刻重绑。端口被占用时控制台打 `WebSocket bind 127.0.0.1:<port> failed`，组件不崩。
+Windows / macOS。只绑 `127.0.0.1`，出厂**开启**，端口 **9999**。偏好 **工具 → 快乐歌词 → Websocket服务** 可关，或改端口（`1`–`65535`，非法值回退 9999）。点「应用」后立刻重绑。端口被占用时控制台打 `WebSocket bind 127.0.0.1:<port> failed`，偏好页端口框下提示错误，组件不崩。后起的 foobar2000 实例抢不到同一端口，该实例没有 WebSocket。
 
 协议：RFC 6455 文本帧，一条 JSON 一条。客户端发命令，服务端回一条应答。加载 / 切行会**主动推**事件，不是对应某条命令的应答。
 
