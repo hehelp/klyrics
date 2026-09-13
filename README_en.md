@@ -8,24 +8,19 @@ This repository hosts **release binaries** and open community JS scripts. The co
 
 ## Updates
 
-
-
 ### 2.0.0.12 (2026-09-13)
 
-- Lyric engine service commands: silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar show & lock, seek, panel style
-- Local WebSocket on Windows / macOS (default `127.0.0.1:9999`; toggle or change port under Preferences → Updates); COM embeds a type library for JSplitter 3.8+
-- Config-changed push; browser demo split into `klyrics_client.js` (API) and `klyrics.js` (canvas); JSplitter self-check script `klyrics_com.js`
-- Desktop lyric line spacing is adjustable; paired-line gap follows that setting
-
-
+- Adjustable line spacing for desktop lyrics; when displayed in pairs, the spacing between the two lines follows this setting. 
+- Added API commands for the lyrics service: silent lyric search, lyric selection/editing window, layer management, saving, preferences page, desktop/floating window/taskbar display and locking, seek/jump to position, and panel styling. 
+- Embedded COM type library; compatible with JSplitter 3.8+. 
+- Added a native WebSocket service for Windows/macOS (default: 127.0.0.1:9999; can be disabled or the port changed via the "Update" preferences page). 
+- Provided a WebSocket lyrics client `klyrics_client.js`) and implemented a demo for rendering lyrics using this client `klyrics.js` and `klyrics.html`).
 
 ### 2.0.0.11 (2026-09-12)
 
 - Desktop lyrics now support new alignment options and line-breaking effects.
 - Tabs on the Preferences page have been converted into independent sub-pages within the preferences tree.
 - "Panel" has been renamed "Panel Template" and now serves solely as the default appearance when creating a new panel.
-
-
 
 ### 2.0.0.10 (2026-09-12)
 
@@ -38,15 +33,11 @@ This repository hosts **release binaries** and open community JS scripts. The co
 - Added a "Filter" function to the search tab: automatic searches are skipped if the title or album name contains text from the list (case-insensitive; filtering by album is ignored if the album field is empty; manual searches are unaffected). 
 - Added two new visual effects for panels and floating windows: "Fan" and "Dial."
 
-
-
 ### 2.0.0.9 (2026-09-11)
 
 - Online lyric translation: searched lyrics can be translated into a target language automatically
 - Other components and JScript Panel can pull the current lyrics through COM (`Klyrics.Engine`) on Windows
 - Two push events: lyrics loaded (line count and file path; path is empty for embedded lyrics or when nothing was saved to disk); current line on line change (index, time, text, translation)
-
-
 
 ### 2.0.0.8 (2026-09-10)
 
@@ -68,8 +59,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Add an option to disable automatic saving of lyrics, while the default option for saving lyrics remains to save them to a specified directory
 - Add the theme "Follow foobar2000" and apply global fonts and colors
 
-
-
 ### 2.0.0.6 (2026-09-05)
 
 - Apple / AMLL TTML: parse local `.ttml` (furigana, translation, romaji) and add the amlldb TTML source (Available by default)
@@ -77,8 +66,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - YouTube captions: paste a watch / Music URL in the title box; if there is no CC, timed YouTube Music lyrics are fetched as standard LRC
 - Star Wars effect (Windows panel / float): one slope across the view so the current line matches the receding half; the near side is no longer inverted
 - Local lyrics sit beside embedded tags and are only searched when added to In use
-
-
 
 ### 2.0.0.5 (2026-09-04)
 
@@ -88,8 +75,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Default save folder is only `{foobar profile}/klyrics-data/download`; no ProgramData / Application Support store or symlink
 - Search can save lyrics next to the audio file; the Chinese UI no longer falls back to English strings
 
-
-
 ### 2.0.0.4 (2026-09-03)
 
 - Factory search starts with NetEase / Kugou / QQ word-level scripts, then LRCLIB and each site’s line LRC; scripts convert to Enhanced LRC before drawing
@@ -98,15 +83,11 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - Factory community scripts are bundled and written to `klyrics-data/scripts/` on first launch (existing files are left alone)
 - The lyric search window can open Preferences on the Search page
 
-
-
 ### 2.0.0.3 (2026-09-01)
 
 - Embedded lyrics are an optional search source (Available by default; once in In use, they follow that list’s order)
 - Search can **Write to file tags**; the panel menu has **Write lyrics to audio file**
 - External CUE tracks: lyrics are stored on the referenced audio and read back from there. Writing while that image is playing may hitch briefly
-
-
 
 ### 2.0.0.2 (2026-08-31)
 
@@ -116,11 +97,7 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 - While layout editing, right-click shows foobar’s Cut / Replace menu instead of the component menu
 - Floating-window hover now shows a tinted rounded background, toolbar, and corner handles; no seek bar and lyrics are no longer dimmed
 
-
-
 ## Screenshots
-
-
 
 ### Windows
 
@@ -177,8 +154,6 @@ Factory defaults changed, but your saved settings are left alone. To pick up the
 | foobar2000 2.x **32-bit** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components\foo_klyrics\`     |
 | foobar2000 2.x **64-bit** | `foo_klyrics.dll`       | `%APPDATA%\foobar2000-v2\user-components-x64\foo_klyrics\` |
 | foobar2000 **Mac**        | `foo_klyrics.component` | `~/Library/foobar2000-v2/user-components/`                 |
-
-
 
 
 ## Install
@@ -243,8 +218,6 @@ Embedded panel only. A click with no movement is ignored.
 | None  | Seek to the preview time                                                |
 | Ctrl  | Shift **all** timestamps so the line under the crosshair **starts now** |
 | Shift | Same, from that line through the end                                    |
-
-
 
 
 ### Editor shortcuts
