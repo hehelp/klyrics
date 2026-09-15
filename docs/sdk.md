@@ -2,12 +2,11 @@
 
 自 **2.0.0.9** 起，Klyrics 可作为 foobar2000 里的**歌词数据引擎**：其他原生组件和 JS 面板可以读取已经解析、对齐、翻译后的歌词。自本次起再提供**服务命令**：静默搜词、开窗口、改图层、保存、打开偏好页，以及桌面 / 浮窗 / 任务栏的显示与锁定。
 
-四套入口共用同一套实现；写配置、开窗口都会切到主线程。
+三套入口共用同一套实现；写配置、开窗口都会切到主线程。
 
 1. **C++ SDK**（Windows / macOS）：`sdk/klyrics_api.h`
 2. **COM / ActiveX**（仅 Windows）：ProgID `Klyrics.Engine`，给 JScript Panel 3、Spider Monkey Panel 等用
-3. **本机 WebSocket**（Windows / macOS）：只绑 `127.0.0.1`，默认端口 **9999**
-4. **Zero Bus**（可选）：服务名 `plugin.klyrics`，payload 与本机 WS 同一套 JSON。未安装 `foo_zero_bus` 时跳过
+3. **Zero Bus**（可选）：服务名 `plugin.klyrics`，payload 是 JSON（`cmd` / `ok` / `event`）。未安装 `foo_zero_bus` 时跳过
 
 English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics_api.h)。
 
@@ -25,7 +24,7 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 
 行号语义（C++ 与 COM / 切行推送不同）：
 
-| 场景 | C++ `get_line_index` / `on_lyrics_updated` | COM `GetLineIndex` / `OnLyricsUpdated` | WS `get_line_index` | WS `lyrics_updated` |
+| 场景 | C++ `get_line_index` / `on_lyrics_updated` | COM `GetLineIndex` / `OnLyricsUpdated` | Zero Bus `get_line_index` | Zero Bus `lyrics_updated` |
 | --- | --- | --- | --- | --- |
 | 有效当前行 | `0 … count-1` | `0 … count-1` | `0 … count-1` | `0 … count-1` |
 | 无歌词 / 早于首行 | `get_line_count()`（不是有效下标） | `-1` | 与 C++ 相同（返回行数） | `-1` |
@@ -40,11 +39,11 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 
 ---
 
-## 四套出口对照
+## 三套出口对照
 
-命令名：C++ / WebSocket 用蛇形；COM 用 PascalCase。Zero Bus 的 payload 与 WebSocket 相同。语义相同。
+命令名：C++ / Zero Bus payload 用蛇形；COM 用 PascalCase。语义相同。
 
-| 能力 | C++ / WebSocket | COM |
+| 能力 | C++ / Zero Bus payload | COM |
 | --- | --- | --- |
 | 总是搜索 | `set_always_search` / `always_search` | `SetAlwaysSearch` / `AlwaysSearch` |
 | 静默搜词 | `search_lyrics` | `SearchLyrics` |
@@ -56,12 +55,12 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 | 桌面歌词 | `set_desktop_visible` / `set_desktop_locked` / `desktop_visible` | `SetDesktopVisible` / `SetDesktopLocked` / `DesktopVisible` |
 | 浮窗歌词 | `set_float_visible` / `set_float_locked` / `float_visible` | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` |
 | 任务栏歌词 | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` |
-| 面板模板样式 | `get_panel_style_json` / WS `get_panel_style` | `GetPanelStyle` |
+| 面板模板样式 | `get_panel_style_json` / Zero Bus `get_panel_style` | `GetPanelStyle` |
 | 跳转进度 | `seek` / `playback_position` / `playback_length` | `Seek` / `GetPlaybackPosition` / `GetPlaybackLength` |
 
 只读歌词（原有 PULL）：
 
-| 能力 | C++ `klyrics_result` | COM | WebSocket |
+| 能力 | C++ `klyrics_result` | COM | Zero Bus payload |
 | --- | --- | --- | --- |
 | 行数 | `get_line_count()` | `GetLineCount()` | `get_line_count` |
 | 一行 | `get_line(index, out)` | `GetLineTime` / `GetLineText` / `GetLineTranslation` | `get_line` |
@@ -98,7 +97,7 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 | `theme` | 主题 |
 | `artwork` | 图片 |
 | `privacy` | 更新 |
-| `websocket` | Websocket服务 |
+| `zerobus` / `zero_bus` | Zero Bus 服务 |
 | `panel` | 面板模板 |
 | `panel.fx` | 面板模板 → 效果 |
 | `desktop` | 桌面 |
@@ -324,20 +323,18 @@ var len = k.GetPlaybackLength();
 
 ---
 
-## WebSocket（本机）
+## Zero Bus（可选）
 
-Windows / macOS。只绑 `127.0.0.1`，出厂**开启**，端口 **9999**。偏好 **工具 → 快乐歌词 → Websocket服务** 可关，或改端口（`1`–`65535`，非法值回退 9999）。点「应用」后立刻重绑。端口被占用时控制台打 `WebSocket bind 127.0.0.1:<port> failed`，偏好页端口框下提示错误，组件不崩。后起的 foobar2000 实例抢不到同一端口，该实例没有 WebSocket。
+需要已安装并启动 **foo_zero_bus**。Klyrics 注册服务 **`plugin.klyrics`**。找不到总线时跳过，不影响 C++ / COM。偏好 **工具 → 快乐歌词 → Zero Bus 服务** 可关。
 
-协议：RFC 6455 文本帧，一条 JSON 一条。客户端发命令，服务端回一条应答。加载 / 切行会**主动推**事件，不是对应某条命令的应答。
+REQUEST / RESPONSE / EVENT 的 **payload** 是文本 JSON：一条命令一条应答。加载 / 切行会**主动推**事件，不是对应某条命令的应答。`sender` 与 EVENT 的 `receiver` 填 `plugin.klyrics`。
+
+经 Zero Bus WebSocket（默认 `ws://127.0.0.1:17890`）调用时，**payload 必须是字符串**：先把业务对象 `JSON.stringify`，再放进信封。不要把对象直接赋给 `payload`。浏览器客户端在成功发出第一次 REQUEST 后，会收到 `lyrics_loaded` / `lyrics_updated` / `config_changed` 的 EVENT。
 
 - 命令必须带 `"cmd"`。
 - 应答成功：`{"ok":true, …}`；失败：`{"ok":false,"error":"…"}`。
 - 推送带 `"event"`，没有 `"ok"`。
 - 布尔参数键名是 `"on"`；省略时默认 `true`（只对 `set_*` 生效）。
-
-```
-ws://127.0.0.1:9999
-```
 
 ### 只读命令
 
@@ -390,28 +387,7 @@ ws://127.0.0.1:9999
 
 `lyrics_updated` 的 `index` 与 COM 相同：无当前行为 `-1`。`text` / `trans` / `path` 可能是空串。
 
-### 示例
-
-```js
-const ws = new WebSocket("ws://127.0.0.1:9999");
-ws.onmessage = (ev) => console.log(ev.data);
-ws.onopen = () => {
-    ws.send(JSON.stringify({ cmd: "get_line_count" }));
-    ws.send(JSON.stringify({ cmd: "get_panel_style" }));
-    ws.send(JSON.stringify({ cmd: "search_lyrics", title: "", artist: "", album: "" }));
-    ws.send(JSON.stringify({ cmd: "set_desktop_visible", on: true }));
-    ws.send(JSON.stringify({ cmd: "show_preferences", page_id: "desktop.fx" }));
-    ws.send(JSON.stringify({ cmd: "seek", time: 12.5 }));
-};
-```
-
-## Zero Bus（可选）
-
-需要已安装并启动 **foo_zero_bus**。Klyrics 注册服务 **`plugin.klyrics`**。找不到总线时跳过，不影响 C++ / COM / 本机 WS。
-
-REQUEST / RESPONSE / EVENT 的 **payload 字符串**与上一节本机 WS 的 JSON 完全相同。`sender` 与 EVENT 的 `receiver` 填 `plugin.klyrics`。
-
-经 Zero Bus WebSocket（默认 `ws://127.0.0.1:17890`）调用时，**payload 必须是字符串**：先把业务对象 `JSON.stringify`，再放进信封。不要把对象直接赋给 `payload`。浏览器客户端在成功发出第一次 REQUEST 后，会收到 `lyrics_loaded` / `lyrics_updated` / `config_changed` 的 EVENT。
+### 信封示例
 
 ```js
 const socket = new WebSocket("ws://127.0.0.1:17890");
@@ -431,7 +407,7 @@ ABI 头文件：本仓 `sdk/foo_zero_bus/abi/`（只含头文件，不要链接 
 
 ### 浏览器画布 Demo
 
-仓库自带简化绘制示例（只实现自定义色 / 透明背景与切行滚动，不实现特效）。走 Zero Bus 信封，不直连本机 9999 口：
+仓库自带简化绘制示例（只实现自定义色 / 透明背景与切行滚动，不实现特效）。走 Zero Bus 信封：
 
 - [sdk/klyrics_client.js](../sdk/klyrics_client.js)：`Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus 接口层，无 DOM / canvas；维护歌词、样式、滚动、播放状态
 - [sdk/klyrics.js](../sdk/klyrics.js)：`Klyrics.mount(canvas, { width, height, url })` — 用 client 状态在 canvas 上绘制；拖拽调进度、右键菜单对齐面板（仅已实现接口的项）

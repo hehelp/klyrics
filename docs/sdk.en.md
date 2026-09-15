@@ -2,12 +2,11 @@
 
 From **2.0.0.9**, Klyrics can act as a **lyric data engine** inside foobar2000: other native components and JS panels can read lyrics that Klyrics has already parsed, aligned, and translated. This release also adds **service commands**: silent search, windows, lyric layers, save, preference pages, and show/lock for desktop, float, and taskbar lyrics.
 
-The four surfaces share one implementation. Writes and UI work are marshaled to the main thread.
+The three surfaces share one implementation. Writes and UI work are marshaled to the main thread.
 
 1. **C++ SDK** (Windows / macOS): `sdk/klyrics_api.h`
 2. **COM / ActiveX** (Windows only): ProgID `Klyrics.Engine`, for JScript Panel 3, Spider Monkey Panel, and similar hosts
-3. **Local WebSocket** (Windows / macOS): binds `127.0.0.1` only, default port **9999**
-4. **Zero Bus** (optional): service name `plugin.klyrics`. The payload is the same JSON as the local WebSocket. Skipped if `foo_zero_bus` is not installed
+3. **Zero Bus** (optional): service name `plugin.klyrics`. The payload is JSON (`cmd` / `ok` / `event`). Skipped if `foo_zero_bus` is not installed
 
 中文：[sdk.md](sdk.md). Header: [sdk/klyrics_api.h](../sdk/klyrics_api.h).
 
@@ -25,7 +24,7 @@ The four surfaces share one implementation. Writes and UI work are marshaled to 
 
 Line-index rules (C++ differs from COM / the line-change push):
 
-| Case | C++ `get_line_index` / `on_lyrics_updated` | COM `GetLineIndex` / `OnLyricsUpdated` | WS `get_line_index` | WS `lyrics_updated` |
+| Case | C++ `get_line_index` / `on_lyrics_updated` | COM `GetLineIndex` / `OnLyricsUpdated` | Zero Bus `get_line_index` | Zero Bus `lyrics_updated` |
 | --- | --- | --- | --- | --- |
 | Valid current line | `0 … count-1` | `0 … count-1` | `0 … count-1` | `0 … count-1` |
 | Empty / before first line | `get_line_count()` (not a valid index) | `-1` | Same as C++ (returns the count) | `-1` |
@@ -42,9 +41,9 @@ Official GUIDs:
 
 ## Surface map
 
-C++ and WebSocket use snake_case. COM uses PascalCase. Zero Bus uses the same JSON payload as WebSocket. Semantics match.
+C++ and the Zero Bus payload use snake_case. COM uses PascalCase. Semantics match.
 
-| Capability | C++ / WebSocket | COM |
+| Capability | C++ / Zero Bus payload | COM |
 | --- | --- | --- |
 | Always search | `set_always_search` / `always_search` | `SetAlwaysSearch` / `AlwaysSearch` |
 | Silent search | `search_lyrics` | `SearchLyrics` |
@@ -56,12 +55,12 @@ C++ and WebSocket use snake_case. COM uses PascalCase. Zero Bus uses the same JS
 | Desktop lyrics | `set_desktop_visible` / `set_desktop_locked` / `desktop_visible` | `SetDesktopVisible` / `SetDesktopLocked` / `DesktopVisible` |
 | Float lyrics | `set_float_visible` / `set_float_locked` / `float_visible` | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` |
 | Taskbar lyrics | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` |
-| Panel template style | `get_panel_style_json` / WS `get_panel_style` | `GetPanelStyle` |
+| Panel template style | `get_panel_style_json` / Zero Bus `get_panel_style` | `GetPanelStyle` |
 | Seek / playback clock | `seek` / `playback_position` / `playback_length` | `Seek` / `GetPlaybackPosition` / `GetPlaybackLength` |
 
 Read-only lyrics (existing PULL):
 
-| Capability | C++ `klyrics_result` | COM | WebSocket |
+| Capability | C++ `klyrics_result` | COM | Zero Bus payload |
 | --- | --- | --- | --- |
 | Line count | `get_line_count()` | `GetLineCount()` | `get_line_count` |
 | One line | `get_line(index, out)` | `GetLineTime` / `GetLineText` / `GetLineTranslation` | `get_line` |
@@ -98,7 +97,7 @@ Example: original + translation = `6`. All four layers = `15` (factory default).
 | `theme` | Theme |
 | `artwork` | Artwork |
 | `privacy` | Updates |
-| `websocket` | WebSocket Service |
+| `zerobus` / `zero_bus` | Zero Bus Service |
 | `panel` | Panel template |
 | `panel.fx` | Panel template → Effects |
 | `desktop` | Desktop |
@@ -324,20 +323,18 @@ The full script is [`github/sdk/klyrics_com.js`](../sdk/klyrics_com.js): create 
 
 ---
 
-## Local WebSocket
+## Zero Bus (optional)
 
-Windows and macOS. Binds `127.0.0.1` only. Enabled by default, port **9999**. Toggle it or change the port (`1`–`65535`; invalid values fall back to 9999) under **Tools → Klyrics → WebSocket Service**. Changes apply as soon as you click Apply. If the port is in use, the console logs `WebSocket bind 127.0.0.1:<port> failed`, the preferences page shows an error under the port field, and the component stays up. A later foobar2000 instance that cannot bind the same port has no WebSocket.
+Requires **foo_zero_bus** installed and running. Klyrics registers **`plugin.klyrics`**. If the bus is missing, this surface is skipped; C++ / COM still work. Toggle it under **Tools → Klyrics → Zero Bus Service**.
 
-Protocol: RFC 6455 text frames, one JSON object per frame. The client sends a command; the server replies once. Load / line-change events are **pushed** on their own; they are not replies to a command.
+REQUEST / RESPONSE / EVENT **payloads** are text JSON: one command, one reply. Load / line-change events are **pushed** on their own; they are not replies to a command. Set `sender` and the EVENT `receiver` to `plugin.klyrics`.
+
+Over the Zero Bus WebSocket (default `ws://127.0.0.1:17890`), **payload must be a string**: `JSON.stringify` the command object first, then put that string on the envelope. Do not assign an object to `payload`. After a browser client sends its first REQUEST, it also receives `lyrics_loaded` / `lyrics_updated` / `config_changed` EVENTs.
 
 - Commands must include `"cmd"`.
 - Success: `{"ok":true, …}`. Failure: `{"ok":false,"error":"…"}`.
 - Pushes use `"event"` and have no `"ok"`.
 - Boolean arguments use `"on"`. If omitted on a `set_*` command, the value defaults to `true`.
-
-```
-ws://127.0.0.1:9999
-```
 
 ### Read-only commands
 
@@ -390,28 +387,7 @@ Sent automatically after connect. No subscribe step.
 
 `lyrics_updated.index` matches COM: `-1` when there is no current line. `text` / `trans` / `path` may be empty.
 
-### Example
-
-```js
-const ws = new WebSocket("ws://127.0.0.1:9999");
-ws.onmessage = (ev) => console.log(ev.data);
-ws.onopen = () => {
-    ws.send(JSON.stringify({ cmd: "get_line_count" }));
-    ws.send(JSON.stringify({ cmd: "get_panel_style" }));
-    ws.send(JSON.stringify({ cmd: "search_lyrics", title: "", artist: "", album: "" }));
-    ws.send(JSON.stringify({ cmd: "set_desktop_visible", on: true }));
-    ws.send(JSON.stringify({ cmd: "show_preferences", page_id: "desktop.fx" }));
-    ws.send(JSON.stringify({ cmd: "seek", time: 12.5 }));
-};
-```
-
-## Zero Bus (optional)
-
-Requires **foo_zero_bus** installed and running. Klyrics registers **`plugin.klyrics`**. If the bus is missing, this surface is skipped; C++ / COM / local WebSocket still work.
-
-REQUEST / RESPONSE / EVENT **payload strings** are the same JSON as the local WebSocket section above. Set `sender` and the EVENT `receiver` to `plugin.klyrics`.
-
-Over the Zero Bus WebSocket (default `ws://127.0.0.1:17890`), **payload must be a string**: `JSON.stringify` the command object first, then put that string on the envelope. Do not assign an object to `payload`. After a browser client sends its first REQUEST, it also receives `lyrics_loaded` / `lyrics_updated` / `config_changed` EVENTs.
+### Envelope example
 
 ```js
 const socket = new WebSocket("ws://127.0.0.1:17890");
@@ -431,7 +407,7 @@ ABI headers: `sdk/foo_zero_bus/abi/` in this repo (headers only; do not link `fo
 
 ### Browser canvas demo
 
-A minimal drawing sample ships with the repo (custom color / transparent background and line-change scroll only; no effects). It uses the Zero Bus envelope, not the local port 9999 socket:
+A minimal drawing sample ships with the repo (custom color / transparent background and line-change scroll only; no effects). It uses the Zero Bus envelope:
 
 - [sdk/klyrics_client.js](../sdk/klyrics_client.js): `Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus layer only, no DOM / canvas; holds lyrics, style, scroll, and playback state
 - [sdk/klyrics.js](../sdk/klyrics.js): `Klyrics.mount(canvas, { width, height, url })` — paints from the client; drag to seek, context menu mirrors the panel (only items with a live API)

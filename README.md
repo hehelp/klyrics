@@ -4,13 +4,20 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.17`, macOS `2.26.9.17`. Product version `2.0.0.15`.
+File versions: Windows `2.26.9.18`, macOS `2.26.9.18`. Product version `2.0.0.16`.
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
 
 
+
+### 2.0.0.16 (2026-09-15)
+
+- Optional Zero Bus lyric service (`plugin.klyrics`; requires [foo_zero_bus](https://github.com/hehelp/foo_zero_bus)). Toggle and logging are on the **Zero Bus Service** preferences page
+- Removed the local WebSocket API (`127.0.0.1:9999`) and the **WebSocket Service** preferences page; the browser demo now uses Zero Bus
+- **Enable Klyrics** is no longer on the View menu; showing desktop / float / taskbar lyrics turns the component back on
+- Only the floating window drops its topmost state when Preferences is opened from that window; desktop and taskbar lyrics stay topmost
 
 ### 2.0.0.15 (2026-09-14)
 
@@ -238,7 +245,7 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 
 ## Features
 
-- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Background can be theme / transparent / custom color / image (Center, Stretch, Fill, Tile). Several panels can each have their own appearance; wrap overflow is on by default and can be turned off. Double-click or the context menu opens fullscreen (Esc exits). **Enable Klyrics** on the View menu / panel menu is the master switch. Windows and macOS both support Star Wars, fisheye, and record effects (any effect locks Always smooth scroll). The record effect can take an optional background (none by default); samples are in `[extras/](extras/)`
+- **Panel**: follow-playback scroll, karaoke highlight, album/artist art, paired bilingual lines. Background can be theme / transparent / custom color / image (Center, Stretch, Fill, Tile). Several panels can each have their own appearance; wrap overflow is on by default and can be turned off. Double-click or the context menu opens fullscreen (Esc exits). Showing desktop / float / taskbar lyrics turns Klyrics back on if it was disabled. Windows and macOS both support Star Wars, fisheye, and record effects (any effect locks Always smooth scroll). The record effect can take an optional background (none by default); samples are in `[extras/](extras/)`
 - **Desktop lyrics**: transparent until hover; horizontal or vertical layout, seek bar, KTV stroke, 3D shadow, image fill. Can fade after pause or stop
 - **Floating window**: borderless; fully transparent until hover shows a tinted background and toolbar (no seek bar); background can also be theme / transparent / custom color / image; wrap overflow and effects can be enabled separately on this page
 - **Taskbar lyrics** (Windows only): one line in the free taskbar gap
@@ -246,7 +253,7 @@ Desktop lyrics, taskbar lyrics, menus, and Preferences do not depend on DUI/CUI.
 - **Artwork search**: iTunes and others; separate from lyric search
 - **Timing editor**: stamp timestamps on lyrics
 - **Online translation**: searched lyrics can be translated into a target language automatically (Baidu / Google and others; see Preferences → Translate)
-- **External API**: C++ SDK (Windows / macOS), COM `Klyrics.Engine` (Windows only, for JScript Panel and similar hosts), and a local WebSocket (`127.0.0.1:9999`, can be turned off). You can pull the current lyrics, or search, open windows, change layers, save, open a preferences page, and control desktop / float / taskbar lyrics. See the [lyric engine SDK](docs/sdk.en.md) and [sdk/klyrics_api.h](sdk/klyrics_api.h)
+- **External API**: C++ SDK (Windows / macOS), COM `Klyrics.Engine` (Windows only, for JScript Panel and similar hosts), and optional Zero Bus (`plugin.klyrics`, JSON payload). You can pull the current lyrics, or search, open windows, change layers, save, open a preferences page, and control desktop / float / taskbar lyrics. See the [lyric engine SDK](docs/sdk.en.md) and [sdk/klyrics_api.h](sdk/klyrics_api.h)
 
 The View menu group follows the UI language: **快乐歌词** in Chinese, **Klyrics** in English.
 
@@ -311,7 +318,7 @@ Writing guide: [Community Script Guide](docs/script-guide.en.md).
 
 ## Lyric engine SDK
 
-Other components can read lyrics that Klyrics has already parsed, aligned, and translated, and can send service commands (silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar, panel style). C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes, COM / WebSocket / Zero Bus map, and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md). Browser canvas sample over Zero Bus: [sdk/klyrics.html](sdk/klyrics.html) ([sdk/klyrics_client.js](sdk/klyrics_client.js) API layer + [sdk/klyrics.js](sdk/klyrics.js) renderer).
+Other components can read lyrics that Klyrics has already parsed, aligned, and translated, and can send service commands (silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar, panel style). C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes, COM / Zero Bus map, and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md). Browser canvas sample over Zero Bus: [sdk/klyrics.html](sdk/klyrics.html) ([sdk/klyrics_client.js](sdk/klyrics_client.js) API layer + [sdk/klyrics.js](sdk/klyrics.js) renderer).
 
 ## Record backgrounds
 
