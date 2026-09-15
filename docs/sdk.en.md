@@ -2,11 +2,12 @@
 
 From **2.0.0.9**, Klyrics can act as a **lyric data engine** inside foobar2000: other native components and JS panels can read lyrics that Klyrics has already parsed, aligned, and translated. This release also adds **service commands**: silent search, windows, lyric layers, save, preference pages, and show/lock for desktop, float, and taskbar lyrics.
 
-The three surfaces share one implementation. Writes and UI work are marshaled to the main thread.
+The four surfaces share one implementation. Writes and UI work are marshaled to the main thread.
 
 1. **C++ SDK** (Windows / macOS): `sdk/klyrics_api.h`
 2. **COM / ActiveX** (Windows only): ProgID `Klyrics.Engine`, for JScript Panel 3, Spider Monkey Panel, and similar hosts
 3. **Local WebSocket** (Windows / macOS): binds `127.0.0.1` only, default port **9999**
+4. **Zero Bus** (optional): service name `plugin.klyrics`. The payload is the same JSON as the local WebSocket. Skipped if `foo_zero_bus` is not installed
 
 中文：[sdk.md](sdk.md). Header: [sdk/klyrics_api.h](../sdk/klyrics_api.h).
 
@@ -41,7 +42,7 @@ Official GUIDs:
 
 ## Surface map
 
-C++ and WebSocket use snake_case. COM uses PascalCase. Semantics match.
+C++ and WebSocket use snake_case. COM uses PascalCase. Zero Bus uses the same JSON payload as WebSocket. Semantics match.
 
 | Capability | C++ / WebSocket | COM |
 | --- | --- | --- |
@@ -404,18 +405,42 @@ ws.onopen = () => {
 };
 ```
 
+## Zero Bus (optional)
+
+Requires **foo_zero_bus** installed and running. Klyrics registers **`plugin.klyrics`**. If the bus is missing, this surface is skipped; C++ / COM / local WebSocket still work.
+
+REQUEST / RESPONSE / EVENT **payload strings** are the same JSON as the local WebSocket section above. Set `sender` and the EVENT `receiver` to `plugin.klyrics`.
+
+Over the Zero Bus WebSocket (default `ws://127.0.0.1:17890`), **payload must be a string**: `JSON.stringify` the command object first, then put that string on the envelope. Do not assign an object to `payload`. After a browser client sends its first REQUEST, it also receives `lyrics_loaded` / `lyrics_updated` / `config_changed` EVENTs.
+
+```js
+const socket = new WebSocket("ws://127.0.0.1:17890");
+socket.onopen = () => {
+  socket.send(JSON.stringify({
+    sender: "",
+    receiver: "plugin.klyrics",
+    type: 1,
+    msg_id: "req_1",
+    correlation_id: "",
+    payload: JSON.stringify({ cmd: "get_line_count" }),
+  }));
+};
+```
+
+ABI headers: `sdk/foo_zero_bus/abi/` in this repo (headers only; do not link `foo_zero_bus_core`).
+
 ### Browser canvas demo
 
-A minimal drawing sample ships with the repo (custom color / transparent background and line-change scroll only; no effects):
+A minimal drawing sample ships with the repo (custom color / transparent background and line-change scroll only; no effects). It uses the Zero Bus envelope, not the local port 9999 socket:
 
-- [sdk/klyrics_client.js](../sdk/klyrics_client.js): `Klyrics.createClient({ url, onStatus, onChange })` — WebSocket layer only, no DOM / canvas; holds lyrics, style, scroll, and playback state
+- [sdk/klyrics_client.js](../sdk/klyrics_client.js): `Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus layer only, no DOM / canvas; holds lyrics, style, scroll, and playback state
 - [sdk/klyrics.js](../sdk/klyrics.js): `Klyrics.mount(canvas, { width, height, url })` — paints from the client; drag to seek, context menu mirrors the panel (only items with a live API)
-- [sdk/klyrics.html](../sdk/klyrics.html): open in a browser; load `klyrics_client.js` before `klyrics.js`; start foobar2000 and enable the local WebSocket first
+- [sdk/klyrics.html](../sdk/klyrics.html): open in a browser; load `klyrics_client.js` before `klyrics.js`; start foobar2000, install [foo_zero_bus](https://github.com/hehelp/foo_zero_bus), and enable Klyrics Zero Bus service
 
 ```js
 // Interface only — bring your own renderer:
 const client = Klyrics.createClient({
-  url: "ws://127.0.0.1:9999",
+  url: "ws://127.0.0.1:17890",
   onChange: () => drawMyLyrics(client),
 });
 
@@ -423,6 +448,6 @@ const client = Klyrics.createClient({
 const panel = Klyrics.mount(document.getElementById("lyric"), {
   width: 420,
   height: 560,
-  url: "ws://127.0.0.1:9999",
+  url: "ws://127.0.0.1:17890",
 });
 ```

@@ -311,7 +311,7 @@ Writing guide: [Community Script Guide](docs/script-guide.en.md).
 
 ## Lyric engine SDK
 
-Other components can read lyrics that Klyrics has already parsed, aligned, and translated, and can send service commands (silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar, panel style). C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes, COM / WebSocket map, and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md). Browser canvas sample: [sdk/klyrics.html](sdk/klyrics.html) ([sdk/klyrics_client.js](sdk/klyrics_client.js) API layer + [sdk/klyrics.js](sdk/klyrics.js) renderer).
+Other components can read lyrics that Klyrics has already parsed, aligned, and translated, and can send service commands (silent search, picker / editor, layers, save, preference pages, desktop / float / taskbar, panel style). C++ header: [sdk/klyrics_api.h](sdk/klyrics_api.h). Full notes, COM / WebSocket / Zero Bus map, and a JScript Panel demo: [lyric engine SDK](docs/sdk.en.md). Browser canvas sample over Zero Bus: [sdk/klyrics.html](sdk/klyrics.html) ([sdk/klyrics_client.js](sdk/klyrics_client.js) API layer + [sdk/klyrics.js](sdk/klyrics.js) renderer).
 
 ## Record backgrounds
 

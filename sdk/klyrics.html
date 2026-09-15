@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Klyrics WebSocket Demo</title>
+  <title>Klyrics Zero Bus Demo</title>
   <style>
     :root {
       --page: #0f1115;
@@ -106,8 +106,9 @@
 <body>
   <h1>Klyrics 歌词画布 Demo</h1>
   <p class="lead">
-    通过本机 WebSocket（默认 <code>ws://127.0.0.1:9999</code>）读取面板模板样式与歌词并绘制。
-    请先启动 foobar2000 并在「工具 → 快乐歌词 → 更新」启用本机接口。
+    经 <a href="https://github.com/hehelp/foo_zero_bus" style="color:#6cb6ff">foo_zero_bus</a>
+    （默认 <code>ws://127.0.0.1:17890</code>）调用 <code>plugin.klyrics</code>，读取面板样式与歌词并绘制。
+    请先启动 foobar2000，安装 Zero Bus，并在「工具 → 快乐歌词 → Zero Bus 服务」打开开关。
     在画布上<strong>拖拽</strong>歌词可预览并跳转播放进度；<strong>右键</strong>打开与面板对齐的菜单（仅含已实现接口的项）。
   </p>
 
@@ -118,8 +119,8 @@
     <label>高 (px)
       <input id="height" type="number" min="120" max="1600" value="560" />
     </label>
-    <label>WebSocket
-      <input id="url" type="text" value="ws://127.0.0.1:9999" />
+    <label>Zero Bus
+      <input id="url" type="text" value="ws://127.0.0.1:17890" />
     </label>
     <button type="button" id="apply">应用并连接</button>
   </div>

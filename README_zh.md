@@ -303,7 +303,7 @@ LRCLIB、酷狗、QQ、网易云是组件内置的，不能用脚本覆盖。额
 
 ## 歌词服务 SDK
 
-其他组件可以读取 Klyrics 已经解析、对齐、翻译后的歌词，也可以发服务命令（静默搜词、选歌词 / 编辑窗、图层、保存、偏好页、桌面 / 浮窗 / 任务栏、面板样式）。C++ 头文件：[sdk/klyrics_api.h](sdk/klyrics_api.h)。完整说明、COM / WebSocket 对照与 JScript Panel Demo：[歌词服务 SDK](docs/sdk.md)。浏览器画布示例：[sdk/klyrics.html](sdk/klyrics.html)（[sdk/klyrics_client.js](sdk/klyrics_client.js) 接口层 + [sdk/klyrics.js](sdk/klyrics.js) 绘制）。
+其他组件可以读取 Klyrics 已经解析、对齐、翻译后的歌词，也可以发服务命令（静默搜词、选歌词 / 编辑窗、图层、保存、偏好页、桌面 / 浮窗 / 任务栏、面板样式）。C++ 头文件：[sdk/klyrics_api.h](sdk/klyrics_api.h)。完整说明、COM / WebSocket / Zero Bus 对照与 JScript Panel Demo：[歌词服务 SDK](docs/sdk.md)。浏览器画布示例走 Zero Bus：[sdk/klyrics.html](sdk/klyrics.html)（[sdk/klyrics_client.js](sdk/klyrics_client.js) 接口层 + [sdk/klyrics.js](sdk/klyrics.js) 绘制）。
 
 ## 唱片背景图
 

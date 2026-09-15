@@ -1,5 +1,5 @@
 /**
- * Klyrics WebSocket 歌词画布 Demo
+ * Klyrics Zero Bus 歌词画布 Demo
  *
  * 接口层：Klyrics.createClient()（见 klyrics_client.js，无绘制）
  * 本文件：canvas 绘制、拖拽 seek、右键菜单。
@@ -8,7 +8,7 @@
  *   const panel = Klyrics.mount(canvas, {
  *     width: 420,
  *     height: 560,
- *     url: "ws://127.0.0.1:9999",
+ *     url: "ws://127.0.0.1:17890",
  *     onStatus: (text) => { ... },
  *   });
  *   panel.destroy();
@@ -18,7 +18,7 @@
 
   const ClientApi = root.Klyrics || {};
   const createClient = ClientApi.createClient;
-  const DEFAULT_URL = ClientApi.DEFAULT_URL || "ws://127.0.0.1:9999";
+  const DEFAULT_URL = ClientApi.DEFAULT_URL || "ws://127.0.0.1:17890";
   const toggleLayer = ClientApi.toggleLayer;
   const formatClock = ClientApi.formatClock;
   const LAYER_RUBY = ClientApi.LAYER_RUBY || 1;
@@ -222,7 +222,7 @@
     ev.preventDefault();
     const client = this.client;
     const self = this;
-    if (!client || !client.ws || client.ws.readyState !== WebSocket.OPEN) {
+    if (!client || typeof client.isOpen !== "function" || !client.isOpen()) {
       this.onStatus("未连接，无法打开菜单");
       return;
     }

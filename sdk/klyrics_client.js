@@ -1,11 +1,12 @@
 /**
- * Klyrics WebSocket 客户端（无 DOM / 无 canvas）
+ * Klyrics Zero Bus 客户端（无 DOM / 无 canvas）
  *
- * 负责连接 foobar2000 本机接口、维护歌词/样式/图层/滚动/播放状态。
+ * 经 foo_zero_bus 的本机 WebSocket 调用 plugin.klyrics。
+ * 业务 JSON 与本机 9999 口相同，但必须包在 Zero Bus 信封里，且 payload 是字符串。
  * 绘制层请用 Klyrics.mount() 或自行读取本对象的状态。
  *
  *   const client = Klyrics.createClient({
- *     url: "ws://127.0.0.1:9999",
+ *     url: "ws://127.0.0.1:17890",
  *     onStatus: (text) => console.log(text),
  *     onChange: () => repaint(),
  *   });
@@ -14,7 +15,12 @@
 (function (root) {
   "use strict";
 
-  const DEFAULT_URL = "ws://127.0.0.1:9999";
+  const DEFAULT_URL = "ws://127.0.0.1:17890";
+  const SERVICE = "plugin.klyrics";
+  const MSG_REQUEST = 1;
+  const MSG_RESPONSE = 2;
+  const MSG_EVENT = 3;
+  const MSG_ERROR = 5;
   const LINE_CHANGE_MS = 380;
   const CURRENT_SCALE_MS = 260;
   const SEEK_DRAG_SLOP = 6;
@@ -104,9 +110,9 @@
     this.playAnchorWall = 0;
     this.playAnchorSec = 0;
     this.ws = null;
-    this._waiters = [];
+    this._waiters = Object.create(null);
+    this._seq = 0;
     this._closed = false;
-    this._busy = Promise.resolve();
 
     this._dragging = false;
     this._dragMoved = false;
@@ -127,9 +133,7 @@
     this._closed = true;
     this.stopScrollAnim();
     this.cancelDrag(false);
-    while (this._waiters.length) {
-      this._waiters.shift().reject(new Error("destroyed"));
-    }
+    this._rejectWaiters("destroyed");
     if (this.ws) {
       try {
         this.ws.close();
@@ -144,6 +148,87 @@
 
   KlyricsClient.prototype._setStatus = function (text) {
     this.onStatus(text);
+  };
+
+  KlyricsClient.prototype.isOpen = function () {
+    return !!(this.ws && this.ws.readyState === WebSocket.OPEN);
+  };
+
+  KlyricsClient.prototype._rejectWaiters = function (reason) {
+    const ids = Object.keys(this._waiters);
+    for (let i = 0; i < ids.length; i++) {
+      const waiter = this._waiters[ids[i]];
+      delete this._waiters[ids[i]];
+      waiter.reject(new Error(reason));
+    }
+  };
+
+  KlyricsClient.prototype._parsePayload = function (raw) {
+    if (raw == null || raw === "") return {};
+    if (typeof raw === "object") return raw;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  KlyricsClient.prototype._handleEvent = function (msg) {
+    const self = this;
+    if (!msg || !msg.event) return false;
+
+    if (msg.event === "lyrics_loaded") {
+      self.cancelDrag(false);
+      self.reloadLyrics().then(function () {
+        if (self.index < 0) {
+          self.setScrollTarget(0, true);
+          self.setScaleTarget(0, true);
+        } else {
+          self.setScrollTarget(self.index, true);
+          self.setScaleTarget(self.index, true);
+        }
+        self._emitChange();
+      });
+      return true;
+    }
+    if (msg.event === "config_changed") {
+      if (msg.style) {
+        self.style = mergeStyle(msg.style);
+      }
+      if (typeof msg.layers === "number") {
+        self.layers = msg.layers | 0;
+      }
+      self._emitChange();
+      return true;
+    }
+    if (msg.event === "lyrics_updated") {
+      if (self._dragMoved) {
+        const idx = typeof msg.index === "number" ? msg.index : -1;
+        if (idx >= 0 && idx < self.lines.length) {
+          const line = self.lines[idx];
+          if (msg.text != null) line.text = msg.text;
+          if (msg.trans != null) line.translation = msg.trans;
+          if (msg.time != null) line.start_time = msg.time;
+        }
+        return true;
+      }
+      const prev = self.index;
+      self.index = typeof msg.index === "number" ? msg.index : -1;
+      if (self.index >= 0 && self.index < self.lines.length) {
+        const line = self.lines[self.index];
+        if (msg.text != null) line.text = msg.text;
+        if (msg.trans != null) line.translation = msg.trans;
+        if (msg.time != null) line.start_time = msg.time;
+        self.syncPlayhead(typeof msg.time === "number" ? msg.time : line.start_time || 0);
+      }
+      const target = self.index >= 0 && self.index < self.lines.length ? self.index : 0;
+      const snap = prev < 0 && self.index < 0;
+      self.setScrollTarget(target, snap);
+      self.setScaleTarget(target, snap);
+      self._emitChange();
+      return true;
+    }
+    return false;
   };
 
   KlyricsClient.prototype._connect = function () {
@@ -183,85 +268,58 @@
     };
 
     ws.onmessage = function (ev) {
-      let msg;
+      let envelope;
       try {
-        msg = JSON.parse(ev.data);
+        envelope = JSON.parse(ev.data);
       } catch (e) {
         return;
       }
+      if (!envelope || typeof envelope !== "object") return;
 
-      if (msg.event === "lyrics_loaded") {
-        self.cancelDrag(false);
-        self.reloadLyrics().then(function () {
-          if (self.index < 0) {
-            self.setScrollTarget(0, true);
-            self.setScaleTarget(0, true);
-          } else {
-            self.setScrollTarget(self.index, true);
-            self.setScaleTarget(self.index, true);
-          }
-          self._emitChange();
-        });
-        return;
-      }
-      if (msg.event === "config_changed") {
-        if (msg.style) {
-          self.style = mergeStyle(msg.style);
-        }
-        if (typeof msg.layers === "number") {
-          self.layers = msg.layers | 0;
-        }
-        self._emitChange();
-        return;
-      }
-      if (msg.event === "lyrics_updated") {
-        if (self._dragMoved) {
-          const idx = typeof msg.index === "number" ? msg.index : -1;
-          if (idx >= 0 && idx < self.lines.length) {
-            const line = self.lines[idx];
-            if (msg.text != null) line.text = msg.text;
-            if (msg.trans != null) line.translation = msg.trans;
-            if (msg.time != null) line.start_time = msg.time;
-          }
-          return;
-        }
-        const prev = self.index;
-        self.index = typeof msg.index === "number" ? msg.index : -1;
-        if (self.index >= 0 && self.index < self.lines.length) {
-          const line = self.lines[self.index];
-          if (msg.text != null) line.text = msg.text;
-          if (msg.trans != null) line.translation = msg.trans;
-          if (msg.time != null) line.start_time = msg.time;
-          self.syncPlayhead(typeof msg.time === "number" ? msg.time : line.start_time || 0);
-        }
-        const target = self.index >= 0 && self.index < self.lines.length ? self.index : 0;
-        const snap = prev < 0 && self.index < 0;
-        self.setScrollTarget(target, snap);
-        self.setScaleTarget(target, snap);
-        self._emitChange();
+      const body = self._parsePayload(envelope.payload);
+      const type = envelope.type | 0;
+
+      if (type === MSG_EVENT) {
+        if (body) self._handleEvent(body);
         return;
       }
 
-      if (self._waiters.length) {
-        const waiter = self._waiters.shift();
-        if (msg.ok === false) {
-          waiter.reject(new Error(msg.error || "命令失败"));
+      const id = envelope.correlation_id || "";
+      const waiter = id ? self._waiters[id] : null;
+      if (!waiter) return;
+      delete self._waiters[id];
+
+      if (type === MSG_ERROR) {
+        const code = body && body.code ? String(body.code) : "ERROR";
+        const message = body && body.message ? String(body.message) : "Zero Bus 错误";
+        if (code === "SERVICE_NOT_FOUND") {
+          waiter.reject(new Error("未找到 plugin.klyrics（确认已安装 foo_zero_bus，并启用快乐歌词的 Zero Bus 服务）"));
         } else {
-          waiter.resolve(msg);
+          waiter.reject(new Error(code + ": " + message));
         }
+        return;
+      }
+
+      if (type !== MSG_RESPONSE) return;
+      if (!body) {
+        waiter.reject(new Error("应答无法解析"));
+        return;
+      }
+      if (body.ok === false) {
+        waiter.reject(new Error(body.error || "命令失败"));
+      } else {
+        waiter.resolve(body);
       }
     };
 
     ws.onerror = function () {
-      self._setStatus("WebSocket 错误（确认 foobar2000 已开，且「更新」页启用了本机接口）");
+      self._setStatus("Zero Bus 连接失败（确认 foobar2000、foo_zero_bus 已开，且快乐歌词启用了 Zero Bus 服务）");
       self._emitChange();
     };
 
     ws.onclose = function () {
       if (self._closed) return;
-      while (self._waiters.length) {
-        self._waiters.shift().reject(new Error("连接断开"));
-      }
+      self._rejectWaiters("连接断开");
       self._setStatus("已断开，3 秒后重连…");
       self.ws = null;
       self._emitChange();
@@ -273,41 +331,44 @@
 
   KlyricsClient.prototype.request = function (payload) {
     const self = this;
-    this._busy = this._busy
-      .catch(function () {})
-      .then(function () {
-        return new Promise(function (resolve, reject) {
-          if (!self.ws || self.ws.readyState !== WebSocket.OPEN) {
-            reject(new Error("未连接"));
-            return;
-          }
-          const timer = setTimeout(function () {
-            const idx = self._waiters.indexOf(entry);
-            if (idx >= 0) self._waiters.splice(idx, 1);
-            reject(new Error("超时: " + payload.cmd));
-          }, 8000);
-          const entry = {
-            resolve: function (msg) {
-              clearTimeout(timer);
-              resolve(msg);
-            },
-            reject: function (err) {
-              clearTimeout(timer);
-              reject(err);
-            },
-          };
-          self._waiters.push(entry);
-          try {
-            self.ws.send(JSON.stringify(payload));
-          } catch (e) {
-            const idx = self._waiters.indexOf(entry);
-            if (idx >= 0) self._waiters.splice(idx, 1);
-            clearTimeout(timer);
-            reject(e);
-          }
-        });
-      });
-    return this._busy;
+    return new Promise(function (resolve, reject) {
+      if (!self.isOpen()) {
+        reject(new Error("未连接"));
+        return;
+      }
+      const msgId = "klyrics_" + ++self._seq;
+      const timer = setTimeout(function () {
+        if (!self._waiters[msgId]) return;
+        delete self._waiters[msgId];
+        reject(new Error("超时: " + payload.cmd));
+      }, 8000);
+      self._waiters[msgId] = {
+        resolve: function (msg) {
+          clearTimeout(timer);
+          resolve(msg);
+        },
+        reject: function (err) {
+          clearTimeout(timer);
+          reject(err);
+        },
+      };
+      try {
+        self.ws.send(
+          JSON.stringify({
+            sender: "",
+            receiver: SERVICE,
+            type: MSG_REQUEST,
+            msg_id: msgId,
+            correlation_id: "",
+            payload: JSON.stringify(payload),
+          })
+        );
+      } catch (e) {
+        delete self._waiters[msgId];
+        clearTimeout(timer);
+        reject(e);
+      }
+    });
   };
 
   KlyricsClient.prototype.refreshUiState = function () {
@@ -336,22 +397,20 @@
       .then(function (msg) {
         const count = msg.count | 0;
         self.lines = new Array(count);
-        let chain = Promise.resolve();
+        const jobs = [];
         for (let i = 0; i < count; i++) {
-          (function (index) {
-            chain = chain.then(function () {
-              return self.request({ cmd: "get_line", index: index }).then(function (lineMsg) {
-                self.lines[index] = {
-                  start_time: lineMsg.start_time || 0,
-                  duration: lineMsg.duration || 0,
-                  text: lineMsg.text || "",
-                  translation: lineMsg.translation || "",
-                };
-              });
-            });
-          })(i);
+          jobs.push(
+            self.request({ cmd: "get_line", index: i }).then(function (lineMsg) {
+              self.lines[i] = {
+                start_time: lineMsg.start_time || 0,
+                duration: lineMsg.duration || 0,
+                text: lineMsg.text || "",
+                translation: lineMsg.translation || "",
+              };
+            })
+          );
         }
-        return chain;
+        return Promise.all(jobs);
       })
       .then(function () {
         if (self.index >= self.lines.length) self.index = -1;
@@ -725,6 +784,11 @@
     Client: KlyricsClient,
     createClient: createClient,
     DEFAULT_URL: DEFAULT_URL,
+    SERVICE: SERVICE,
+    MSG_REQUEST: MSG_REQUEST,
+    MSG_RESPONSE: MSG_RESPONSE,
+    MSG_EVENT: MSG_EVENT,
+    MSG_ERROR: MSG_ERROR,
     LAYER_RUBY: LAYER_RUBY,
     LAYER_ORIG: LAYER_ORIG,
     LAYER_TRANS: LAYER_TRANS,

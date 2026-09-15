@@ -2,11 +2,12 @@
 
 自 **2.0.0.9** 起，Klyrics 可作为 foobar2000 里的**歌词数据引擎**：其他原生组件和 JS 面板可以读取已经解析、对齐、翻译后的歌词。自本次起再提供**服务命令**：静默搜词、开窗口、改图层、保存、打开偏好页，以及桌面 / 浮窗 / 任务栏的显示与锁定。
 
-三套入口共用同一套实现；写配置、开窗口都会切到主线程。
+四套入口共用同一套实现；写配置、开窗口都会切到主线程。
 
 1. **C++ SDK**（Windows / macOS）：`sdk/klyrics_api.h`
 2. **COM / ActiveX**（仅 Windows）：ProgID `Klyrics.Engine`，给 JScript Panel 3、Spider Monkey Panel 等用
 3. **本机 WebSocket**（Windows / macOS）：只绑 `127.0.0.1`，默认端口 **9999**
+4. **Zero Bus**（可选）：服务名 `plugin.klyrics`，payload 与本机 WS 同一套 JSON。未安装 `foo_zero_bus` 时跳过
 
 English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics_api.h)。
 
@@ -39,9 +40,9 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 
 ---
 
-## 三套出口对照
+## 四套出口对照
 
-命令名：C++ / WebSocket 用蛇形；COM 用 PascalCase。语义相同。
+命令名：C++ / WebSocket 用蛇形；COM 用 PascalCase。Zero Bus 的 payload 与 WebSocket 相同。语义相同。
 
 | 能力 | C++ / WebSocket | COM |
 | --- | --- | --- |
@@ -404,18 +405,42 @@ ws.onopen = () => {
 };
 ```
 
+## Zero Bus（可选）
+
+需要已安装并启动 **foo_zero_bus**。Klyrics 注册服务 **`plugin.klyrics`**。找不到总线时跳过，不影响 C++ / COM / 本机 WS。
+
+REQUEST / RESPONSE / EVENT 的 **payload 字符串**与上一节本机 WS 的 JSON 完全相同。`sender` 与 EVENT 的 `receiver` 填 `plugin.klyrics`。
+
+经 Zero Bus WebSocket（默认 `ws://127.0.0.1:17890`）调用时，**payload 必须是字符串**：先把业务对象 `JSON.stringify`，再放进信封。不要把对象直接赋给 `payload`。浏览器客户端在成功发出第一次 REQUEST 后，会收到 `lyrics_loaded` / `lyrics_updated` / `config_changed` 的 EVENT。
+
+```js
+const socket = new WebSocket("ws://127.0.0.1:17890");
+socket.onopen = () => {
+  socket.send(JSON.stringify({
+    sender: "",
+    receiver: "plugin.klyrics",
+    type: 1,
+    msg_id: "req_1",
+    correlation_id: "",
+    payload: JSON.stringify({ cmd: "get_line_count" }),
+  }));
+};
+```
+
+ABI 头文件：本仓 `sdk/foo_zero_bus/abi/`（只含头文件，不要链接 `foo_zero_bus_core`）。
+
 ### 浏览器画布 Demo
 
-仓库自带简化绘制示例（只实现自定义色 / 透明背景与切行滚动，不实现特效）：
+仓库自带简化绘制示例（只实现自定义色 / 透明背景与切行滚动，不实现特效）。走 Zero Bus 信封，不直连本机 9999 口：
 
-- [sdk/klyrics_client.js](../sdk/klyrics_client.js)：`Klyrics.createClient({ url, onStatus, onChange })` — WebSocket 接口层，无 DOM / canvas；维护歌词、样式、滚动、播放状态
+- [sdk/klyrics_client.js](../sdk/klyrics_client.js)：`Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus 接口层，无 DOM / canvas；维护歌词、样式、滚动、播放状态
 - [sdk/klyrics.js](../sdk/klyrics.js)：`Klyrics.mount(canvas, { width, height, url })` — 用 client 状态在 canvas 上绘制；拖拽调进度、右键菜单对齐面板（仅已实现接口的项）
-- [sdk/klyrics.html](../sdk/klyrics.html)：用浏览器打开；先加载 `klyrics_client.js` 再加载 `klyrics.js`；先启动 foobar2000 并启用本机 WebSocket
+- [sdk/klyrics.html](../sdk/klyrics.html)：用浏览器打开；先加载 `klyrics_client.js` 再加载 `klyrics.js`；先启动 foobar2000，安装 [foo_zero_bus](https://github.com/hehelp/foo_zero_bus)，并启用快乐歌词的 Zero Bus 服务
 
 ```js
 // 只要接口、自己画 UI：
 const client = Klyrics.createClient({
-  url: "ws://127.0.0.1:9999",
+  url: "ws://127.0.0.1:17890",
   onChange: () => drawMyLyrics(client),
 });
 
@@ -423,6 +448,6 @@ const client = Klyrics.createClient({
 const panel = Klyrics.mount(document.getElementById("lyric"), {
   width: 420,
   height: 560,
-  url: "ws://127.0.0.1:9999",
+  url: "ws://127.0.0.1:17890",
 });
 ```
