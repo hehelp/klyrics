@@ -4,13 +4,22 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.9.18`, macOS `2.26.9.18`. Product version `2.0.0.16`.
+File versions: Windows `2.26.9.19`, macOS `2.26.9.19`. Product version `2.0.0.17`.
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
 
+### 2.0.0.17 (2026-09-17)
 
+- Default In-use search source order updated to Embedded, Local, NetEase, LRCLIB; others placed in Available
+- "Settings" button in lyric search picker window navigates directly to Preferences → Search → Search Sources
+- Desktop lyrics separately remembers window position and size for horizontal and vertical modes, restored upon switching (Windows / macOS)
+- Optimized desktop lyrics window auto-sizing by font size (calibrated to ~15 Chinese character reading width)
+- Panel & floating lyrics: holding Alt while dragging snaps seek to full lines (Windows / macOS)
+- D2D lyrics element: mouse wheel scrolls lyrics for browsing without modifying playback progress, resuming smoothly after a few seconds of idle
+- D2D lyrics element: fast dragging and releasing retains seek preview smoothly, locking target progress in PlaybackHub to eliminate jump-backs and lagging scroll caused by asynchronous player seek callbacks
+- Added native Windows ARM64EC architecture support; official `.fb2k-component` includes Win32, x64, ARM64EC, and macOS binaries
 
 ### 2.0.0.16 (2026-09-15)
 
