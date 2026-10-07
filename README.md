@@ -4,11 +4,25 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.10.7`, macOS `2.26.10.7`. Product version `2.0.0.21`.
+File versions: Windows `2.26.10.7`, macOS `2.26.10.7`. Product version `2.0.1`.
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+
+
+### 2.0.1 (2026-10-07)
+
+- Windows: drawing an outline in the Zero lyrics element at the same time as the background renderer no longer crashes
+- Windows: switching a panel background from an image to a chosen color now paints that color
+
+
+
+### 2.0.0.22 (2026-10-07)
+
+- Other components can list embedded lyric panels and read or write one panel's own look (name, background, font, colors, scroll, vertical text) through the C++ API, COM, and Zero Bus. `get_panel_style` remains the global panel template
+- The per-panel settings dialog can name that panel. The name stays when the panel follows the global template again (Windows / macOS)
 
 
 
