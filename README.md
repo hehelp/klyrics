@@ -15,7 +15,7 @@ This repository hosts **release binaries** and open community JS scripts. The co
 ### 2.0.0.21 (2026-10-07)
 
 - Windows:Render lyrics using a separate thread
-- Windows: a preferences page taller than its window gets a vertical scrollbar, so the bottom of the panel and floating-lyrics pages is no longer cut off
+- Windows: A vertical scrollbar now appears when the Preferences page is shorter than the window, preventing the lower sections of the panel lyrics and floating lyrics views from being cut off.
 
 
 
