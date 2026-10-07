@@ -17,7 +17,7 @@ The three surfaces share one implementation. Writes and UI work are marshaled to
 - Times are seconds (`double`).
 - Strings are UTF-8. COM converts them to JS `String`.
 - Do **not** `delete` / `free` a `klyrics_result*` or its `const char*`. Pointers become invalid on the next lyric update — copy what you need inside the callback.
-- Keep the three push events separate: `on_lyrics_loaded` means lyrics are ready; `on_lyrics_updated` means the current line changed; `on_config_changed` means panel style / lyric layers changed.
+- Keep the push events separate: `on_lyrics_loaded` means lyrics are ready; `on_lyrics_updated` means the current line changed; `on_config_changed` means the global panel template or lyric layers changed; `on_panel_style_changed` means one embedded panel's own style changed.
 - `search_lyrics` only means a silent AutoBest search **has been started**. A later load push reports the result. There is no API that returns an unused LRC for an arbitrary track that is not now playing.
 - Visibility getters report whether the **window is actually up**, not just the saved setting.
 - macOS has no taskbar lyrics: `set_taskbar_*` is a no-op and `taskbar_visible` is always `false`.
@@ -56,6 +56,7 @@ C++ and the Zero Bus payload use snake_case. COM uses PascalCase. Semantics matc
 | Float lyrics | `set_float_visible` / `set_float_locked` / `float_visible` | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` |
 | Taskbar lyrics | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` |
 | Panel template style | `get_panel_style_json` / Zero Bus `get_panel_style` | `GetPanelStyle` |
+| Embedded panel instance | `list_panels_json` / `current_panel_json` / `get_panel_instance_style_json` / `set_panel_instance_style` / `clear_panel_instance_style` / `set_panel_name` | `ListPanels` / `CurrentPanel` / `GetPanelInstanceStyle` / `SetPanelInstanceStyle` / `ClearPanelInstanceStyle` / `SetPanelName` |
 | Seek / playback clock | `seek` / `playback_position` / `playback_length` | `Seek` / `GetPlaybackPosition` / `GetPlaybackLength` |
 
 Read-only lyrics (existing PULL):
@@ -67,6 +68,26 @@ Read-only lyrics (existing PULL):
 | Raw LRC | `get_raw_lrc()` | `GetRawLrc()` | `get_raw_lrc` |
 | Position → index | `get_line_index(time)` | `GetLineIndex(time)` | `get_line_index` |
 | Lyric file path | `get_source_path()` | `GetLyricPath()` | `get_source_path` |
+
+---
+
+## One embedded panel
+
+`get_panel_style` / `GetPanelStyle` stays the **global panel template**, read-only. The commands below read and write one DUI, CUI, Zero, or macOS lyric panel's own "this panel" settings. Desktop, float, and taskbar lyrics are not included. Input on the fullscreen window counts as the panel that opened it.
+
+Addressing: `id` `0` and an empty `name` means the current instance. A non-empty `name` selects by name; otherwise a non-zero `id` selects by id. `id` is valid only for this process while that panel is alive. `name` is stored in that panel's own config, UTF-8, at most 64 bytes, and unique among live instances. The current instance is the panel that last received a click, wheel, right-click, or drag. If none has been touched yet, the only registered panel is returned; more than one is a failure.
+
+One list item looks like `{"id":1,"name":"Main","kind":"dui","custom":1,"current":true}`. `kind` is `dui` / `cui` / `zero` / `mac`. `custom` `1` means the panel no longer follows the global template.
+
+C++ strings stay valid until the next call of the same method. COM reads return `""` on failure; writes return bool. Zero Bus puts the list in `panels`, the current panel in `panel`, and the style in `style`. Writes return `{"ok":true}`. Errors: `panel not found`, `no current panel`, `duplicate name`, `name too long`, `invalid style`, `invalid font`.
+
+`set_panel_instance_style` takes a patch: only keys that are present change, the rest keep the panel's current effective values, and the panel is marked custom. `clear_panel_instance_style` follows the global template again and keeps the name. The panel redraws immediately. C++ pushes `on_panel_style_changed(id, name, style_json)`. Zero Bus pushes `panel_style_changed`. `on_config_changed` still means only the global template or lyric layers. COM has no connection point for this event.
+
+Instance style adds these fields on top of the template: `custom`, `bg_image_src` (`0` auto art / `1` a file), `bg_image_path`, `bg_image_fit` (`0` center / `1` stretch / `2` cover / `3` tile), `bg_brightness` / `bg_contrast` / `bg_saturation` (-100..100), `scroll_fps` (24 / 30 / 60 / 90 / 120), `vertical` (`0` horizontal / `1` vertical), `align` (horizontal: 0 left / 1 center / 2 right; vertical: 0 top / 1 center / 2 bottom). Font, `#RRGGBB` colors, `bg_mode`, `stroke`, `scroll_mode`, `fade`, `karaoke`, `wrap`, `current_scale`, `line_spacing`, and `lyric_fx*` match the template. Unknown keys are ignored.
+
+```json
+{"cmd":"set_panel_instance_style","name":"Main","style":{"bg_mode":"transparent","vertical":1}}
+```
 
 ---
 
@@ -291,7 +312,13 @@ JSplitter 3.8+ reads the type library when constructing `ActiveXObject`. It expo
 | `DesktopVisible` | `DesktopVisible()` | `bool` | Desktop is up |
 | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` | same | same | Float |
 | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` | same | same | Taskbar |
-| `GetPanelStyle` | `GetPanelStyle()` | `string` (JSON) | Panel-template style; same fields as C++ / WebSocket |
+| `GetPanelStyle` | `GetPanelStyle()` | `string` (JSON) | Global panel template; same fields as C++ / WebSocket |
+| `ListPanels` | `ListPanels()` | `string` (JSON array) | Live embedded panels |
+| `CurrentPanel` | `CurrentPanel()` | `string` | Current instance, or `""` |
+| `GetPanelInstanceStyle` | `GetPanelInstanceStyle(id, name)` | `string` | That panel's effective style, or `""` |
+| `SetPanelInstanceStyle` | `SetPanelInstanceStyle(id, name, style)` | `bool` | Apply a patch and mark the panel custom |
+| `ClearPanelInstanceStyle` | `ClearPanelInstanceStyle(id, name)` | `bool` | Follow the global template again; the name stays |
+| `SetPanelName` | `SetPanelName(id, name, newName)` | `bool` | Rename. `id` `0` and an empty `name` means the current instance |
 | `Seek` | `Seek(time)` | `bool` | Seek to that second |
 | `GetPlaybackPosition` | `GetPlaybackPosition()` | `double` | Current playback position (seconds) |
 | `GetPlaybackLength` | `GetPlaybackLength()` | `double` | Current track length (seconds) |
@@ -366,7 +393,13 @@ When there are no lyrics: `count` / `index` are `0`, `lrc` / `path` are `""`. `g
 | `desktop_visible` | `{"cmd":"desktop_visible"}` | `{"ok":true,"on":true}` |
 | `set_float_visible` / `set_float_locked` / `float_visible` | same | same |
 | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | same | same (always `false` on macOS) |
-| `get_panel_style` | `{"cmd":"get_panel_style"}` | `{"ok":true,"style":{…}}` (same fields as theme export) |
+| `get_panel_style` | `{"cmd":"get_panel_style"}` | `{"ok":true,"style":{…}}` (global panel template; same fields as theme export) |
+| `list_panels` | `{"cmd":"list_panels"}` | `{"ok":true,"panels":[…]}` |
+| `current_panel` | `{"cmd":"current_panel"}` | `{"ok":true,"panel":{…}}`; no current instance → `no current panel` |
+| `get_panel_instance_style` | `{"cmd":"get_panel_instance_style","id":1}` or `"name":"Main"` | `{"ok":true,"style":{…}}` |
+| `set_panel_instance_style` | `{"cmd":"set_panel_instance_style","name":"Main","style":{"bg_mode":"transparent"}}` | `{"ok":true}` |
+| `clear_panel_instance_style` | `{"cmd":"clear_panel_instance_style","name":"Main"}` | `{"ok":true}` |
+| `set_panel_name` | `{"cmd":"set_panel_name","id":1,"new_name":"Main"}` | `{"ok":true}`; a clash is `duplicate name` |
 | `seek` | `{"cmd":"seek","time":12.5}` | `{"ok":true}`; cannot seek → `seek failed` |
 | `playback_position` | `{"cmd":"playback_position"}` | `{"ok":true,"time":12.5}` |
 | `playback_length` | `{"cmd":"playback_length"}` | `{"ok":true,"length":180}` |
@@ -383,7 +416,10 @@ Sent automatically after connect. No subscribe step.
 {"event":"lyrics_loaded","count":12,"path":"D:\\lyrics\\song.lrc"}
 {"event":"lyrics_updated","index":3,"time":12.5,"text":"original","trans":"translation"}
 {"event":"config_changed","layers":15,"style":{"font_size":14,"bg_mode":"color",...}}
+{"event":"panel_style_changed","id":1,"name":"Main","style":{"custom":1,"bg_mode":"transparent",...}}
 ```
+
+`config_changed` is only the global panel template or lyric layers. `panel_style_changed` is one embedded panel's own style.
 
 `lyrics_updated.index` matches COM: `-1` when there is no current line. `text` / `trans` / `path` may be empty.
 
@@ -411,7 +447,7 @@ A minimal drawing sample ships with the repo (custom color / transparent backgro
 
 - [sdk/klyrics_client.js](../sdk/klyrics_client.js): `Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus layer only, no DOM / canvas; holds lyrics, style, scroll, and playback state
 - [sdk/klyrics.js](../sdk/klyrics.js): `Klyrics.mount(canvas, { width, height, url })` — paints from the client; drag to seek, context menu mirrors the panel (only items with a live API)
-- [sdk/klyrics.html](../sdk/klyrics.html): open in a browser; load `klyrics_client.js` before `klyrics.js`; start foobar2000, install [foo_zero_bus](https://github.com/hehelp/foo_zero_bus), and enable Klyrics Zero Bus service
+- [sdk/klyrics.html](../sdk/klyrics.html): open in a browser; load `klyrics_client.js` before `klyrics.js`; start foobar2000, install [foo_zero_bus](https://github.com/hehelp/foo_zero_bus), and enable Klyrics Zero Bus service. Below the canvas you can list embedded lyric panels and edit one panel's own preferences
 
 ```js
 // Interface only — bring your own renderer:

@@ -102,6 +102,8 @@
         self._paint();
         self._ensurePaintLoop();
       },
+      onReady: options.onReady,
+      onPanelStyle: options.onPanelStyle,
     });
 
     this._onCtx = this._onContextMenu.bind(this);

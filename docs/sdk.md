@@ -17,7 +17,7 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 - 时间单位一律是秒（`double`）。
 - 字符串是 UTF-8。COM 侧会转成 JS 的 `String`。
 - `klyrics_result*` 和其中的 `const char*` **不要** `delete` / `free`。指针在下一次歌词更新后失效，回调里立刻拷走需要的数据。
-- 三个推送不要混：`on_lyrics_loaded` 是加载成功；`on_lyrics_updated` 是切行推当前行；`on_config_changed` 是面板外观 / 图层配置已改。
+- 推送不要混：`on_lyrics_loaded` 是加载成功；`on_lyrics_updated` 是切行推当前行；`on_config_changed` 是全局面板模板 / 图层已改；`on_panel_style_changed` 是某一块内嵌面板自己的样式已改。
 - `search_lyrics` 只表示**已经发起**静默 AutoBest，真正搜到后才会再走加载推送。不会为「任意一首未在播的歌」单独返回一份不应用的 LRC。
 - 查询「窗口是否显示」看的是**窗口是否真的在**，不是只读配置项。
 - macOS 没有任务栏歌词：`set_taskbar_*` 空操作，`taskbar_visible` 恒为 `false`。
@@ -56,6 +56,7 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 | 浮窗歌词 | `set_float_visible` / `set_float_locked` / `float_visible` | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` |
 | 任务栏歌词 | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` |
 | 面板模板样式 | `get_panel_style_json` / Zero Bus `get_panel_style` | `GetPanelStyle` |
+| 内嵌面板实例 | `list_panels_json` / `current_panel_json` / `get_panel_instance_style_json` / `set_panel_instance_style` / `clear_panel_instance_style` / `set_panel_name` | `ListPanels` / `CurrentPanel` / `GetPanelInstanceStyle` / `SetPanelInstanceStyle` / `ClearPanelInstanceStyle` / `SetPanelName` |
 | 跳转进度 | `seek` / `playback_position` / `playback_length` | `Seek` / `GetPlaybackPosition` / `GetPlaybackLength` |
 
 只读歌词（原有 PULL）：
@@ -67,6 +68,26 @@ English: [sdk.en.md](sdk.en.md)。头文件：[sdk/klyrics_api.h](../sdk/klyrics
 | 原文 LRC | `get_raw_lrc()` | `GetRawLrc()` | `get_raw_lrc` |
 | 进度 → 行号 | `get_line_index(time)` | `GetLineIndex(time)` | `get_line_index` |
 | 歌词文件路径 | `get_source_path()` | `GetLyricPath()` | `get_source_path` |
+
+---
+
+## 指定内嵌面板实例
+
+`get_panel_style` / `GetPanelStyle` 仍是**全局面板模板**，只读。下面这组命令改的是某一块 DUI、CUI、Zero 或 macOS 歌词面板自己的「此面板设置」。桌面、浮窗、任务栏不在其中。全屏窗口上的输入算到打开全屏的那个面板。
+
+寻址：`id` 为 `0` 且 `name` 为空表示当前实例。`name` 非空按名字找，否则按非 0 的 `id`。`id` 只在这次进程、这个面板还活着时有效。`name` 写进该面板自己的配置，UTF-8，最长 64 字节，已登记实例之间不能重名。当前实例是最近一次收到点击、滚轮、右键或拖动的面板；还没人操作过时，只有一个面板就返回它，多于一个则失败。
+
+列表里一条是 `{"id":1,"name":"主面板","kind":"dui","custom":1,"current":true}`。`kind` 为 `dui` / `cui` / `zero` / `mac`。`custom` 为 `1` 表示已脱离全局模板。
+
+C++ 返回的字符串在下次调用同一个方法前有效。COM 读失败返回空串，写操作返回 bool。Zero Bus 成功时列表在 `panels`，当前实例在 `panel`，样式在 `style`；写操作 `{"ok":true}`。错误：`panel not found`、`no current panel`、`duplicate name`、`name too long`、`invalid style`、`invalid font`。
+
+`set_panel_instance_style` 的 `style` 是补丁：只改出现的字段，缺的保持该面板当前生效值，并把该面板标成自定义。`clear_panel_instance_style` 重新跟随全局模板，名字保留。写入后立刻重画。C++ 推 `on_panel_style_changed(id, name, style_json)`，Zero Bus 推 `panel_style_changed`。`on_config_changed` 仍只表示全局模板或图层。COM 没有这条连接点。
+
+实例样式在模板字段之外还有：`custom`、`bg_image_src`（`0` 自动封面 / `1` 指定文件）、`bg_image_path`、`bg_image_fit`（`0` 居中 / `1` 拉伸 / `2` 填充 / `3` 平铺）、`bg_brightness` / `bg_contrast` / `bg_saturation`（-100..100）、`scroll_fps`（24 / 30 / 60 / 90 / 120）、`vertical`（`0` 横排 / `1` 竖排）、`align`（横排 0 左 / 1 中 / 2 右，竖排 0 上 / 1 中 / 2 下）。字体、`#RRGGBB` 颜色、`bg_mode`、`stroke`、`scroll_mode`、`fade`、`karaoke`、`wrap`、`current_scale`、`line_spacing`、`lyric_fx*` 与模板相同。未知字段忽略。
+
+```json
+{"cmd":"set_panel_instance_style","name":"主面板","style":{"bg_mode":"transparent","vertical":1}}
+```
 
 ---
 
@@ -291,7 +312,13 @@ JSplitter 3.8+ 在 `new ActiveXObject` 时解析类型库，只把 **INVOKE_FUNC
 | `DesktopVisible` | `DesktopVisible()` | `bool` | 桌面是否在 |
 | `SetFloatVisible` / `SetFloatLocked` / `FloatVisible` | 同上 | 同上 | 浮窗 |
 | `SetTaskbarVisible` / `SetTaskbarLocked` / `TaskbarVisible` | 同上 | 同上 | 任务栏 |
-| `GetPanelStyle` | `GetPanelStyle()` | `string`（JSON） | 面板模板样式，字段同 C++ / WebSocket |
+| `GetPanelStyle` | `GetPanelStyle()` | `string`（JSON） | 全局面板模板，字段同 C++ / WebSocket |
+| `ListPanels` | `ListPanels()` | `string`（JSON 数组） | 当前内嵌面板 |
+| `CurrentPanel` | `CurrentPanel()` | `string` | 当前实例；没有时为 `""` |
+| `GetPanelInstanceStyle` | `GetPanelInstanceStyle(id, name)` | `string` | 该面板生效样式；找不到为 `""` |
+| `SetPanelInstanceStyle` | `SetPanelInstanceStyle(id, name, style)` | `bool` | 按补丁写入并标成自定义 |
+| `ClearPanelInstanceStyle` | `ClearPanelInstanceStyle(id, name)` | `bool` | 重新跟随全局模板，名字保留 |
+| `SetPanelName` | `SetPanelName(id, name, newName)` | `bool` | 改名。`id` 为 `0` 且 `name` 为空表示当前实例 |
 | `Seek` | `Seek(time)` | `bool` | 跳到指定秒 |
 | `GetPlaybackPosition` | `GetPlaybackPosition()` | `double` | 当前播放位置（秒） |
 | `GetPlaybackLength` | `GetPlaybackLength()` | `double` | 当前曲时长（秒） |
@@ -366,7 +393,13 @@ REQUEST / RESPONSE / EVENT 的 **payload** 是文本 JSON：一条命令一条�
 | `desktop_visible` | `{"cmd":"desktop_visible"}` | `{"ok":true,"on":true}` |
 | `set_float_visible` / `set_float_locked` / `float_visible` | 同上 | 同上 |
 | `set_taskbar_visible` / `set_taskbar_locked` / `taskbar_visible` | 同上 | 同上（macOS 查询恒为 `false`） |
-| `get_panel_style` | `{"cmd":"get_panel_style"}` | `{"ok":true,"style":{…}}`（字段同主题导出） |
+| `get_panel_style` | `{"cmd":"get_panel_style"}` | `{"ok":true,"style":{…}}`（全局面板模板，字段同主题导出） |
+| `list_panels` | `{"cmd":"list_panels"}` | `{"ok":true,"panels":[…]}` |
+| `current_panel` | `{"cmd":"current_panel"}` | `{"ok":true,"panel":{…}}`；没有当前实例则 `no current panel` |
+| `get_panel_instance_style` | `{"cmd":"get_panel_instance_style","id":1}` 或 `"name":"主面板"` | `{"ok":true,"style":{…}}` |
+| `set_panel_instance_style` | `{"cmd":"set_panel_instance_style","name":"主面板","style":{"bg_mode":"transparent"}}` | `{"ok":true}` |
+| `clear_panel_instance_style` | `{"cmd":"clear_panel_instance_style","name":"主面板"}` | `{"ok":true}` |
+| `set_panel_name` | `{"cmd":"set_panel_name","id":1,"new_name":"主面板"}` | `{"ok":true}`；重名为 `duplicate name` |
 | `seek` | `{"cmd":"seek","time":12.5}` | `{"ok":true}`；不能跳则 `seek failed` |
 | `playback_position` | `{"cmd":"playback_position"}` | `{"ok":true,"time":12.5}` |
 | `playback_length` | `{"cmd":"playback_length"}` | `{"ok":true,"length":180}` |
@@ -383,7 +416,10 @@ REQUEST / RESPONSE / EVENT 的 **payload** 是文本 JSON：一条命令一条�
 {"event":"lyrics_loaded","count":12,"path":"D:\\lyrics\\song.lrc"}
 {"event":"lyrics_updated","index":3,"time":12.5,"text":"原文","trans":"译文"}
 {"event":"config_changed","layers":15,"style":{"font_size":14,"bg_mode":"color",...}}
+{"event":"panel_style_changed","id":1,"name":"主面板","style":{"custom":1,"bg_mode":"transparent",...}}
 ```
+
+`config_changed` 只表示全局面板模板或图层。`panel_style_changed` 是某一块内嵌面板自己的样式。
 
 `lyrics_updated` 的 `index` 与 COM 相同：无当前行为 `-1`。`text` / `trans` / `path` 可能是空串。
 
@@ -411,7 +447,7 @@ ABI 头文件：本仓 `sdk/foo_zero_bus/abi/`（只含头文件，不要链接 
 
 - [sdk/klyrics_client.js](../sdk/klyrics_client.js)：`Klyrics.createClient({ url, onStatus, onChange })` — Zero Bus 接口层，无 DOM / canvas；维护歌词、样式、滚动、播放状态
 - [sdk/klyrics.js](../sdk/klyrics.js)：`Klyrics.mount(canvas, { width, height, url })` — 用 client 状态在 canvas 上绘制；拖拽调进度、右键菜单对齐面板（仅已实现接口的项）
-- [sdk/klyrics.html](../sdk/klyrics.html)：用浏览器打开；先加载 `klyrics_client.js` 再加载 `klyrics.js`；先启动 foobar2000，安装 [foo_zero_bus](https://github.com/hehelp/foo_zero_bus)，并启用快乐歌词的 Zero Bus 服务
+- [sdk/klyrics.html](../sdk/klyrics.html)：用浏览器打开；先加载 `klyrics_client.js` 再加载 `klyrics.js`；先启动 foobar2000，安装 [foo_zero_bus](https://github.com/hehelp/foo_zero_bus)，并启用快乐歌词的 Zero Bus 服务。页面下方可查询内嵌歌词面板，并改指定面板自己的偏好
 
 ```js
 // 只要接口、自己画 UI：

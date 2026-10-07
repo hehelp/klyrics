@@ -81,6 +81,26 @@
       cursor: pointer;
     }
     button:hover { filter: brightness(1.06); }
+    button.ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-weight: 550;
+    }
+    select {
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #10131a;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 34px;
+      padding: 3px;
+    }
+    input[type="checkbox"] { width: auto; }
     .stage {
       padding: 12px;
       background: var(--card);
@@ -93,12 +113,62 @@
       border-radius: 8px;
       max-width: 100%;
     }
-    #status {
+    #status, #panel-msg {
       margin-top: 14px;
       font-size: 0.85rem;
       color: var(--muted);
       text-align: center;
       min-height: 1.2em;
+    }
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      align-items: flex-start;
+      width: min(980px, 100%);
+    }
+    .panel-card {
+      width: min(440px, 100%);
+      padding: 14px 16px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+    .panel-card h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 650;
+    }
+    .panel-card .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+    .panel-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 10px;
+    }
+    .panel-row label { flex: 1; min-width: 8rem; }
+    .panel-row select, .panel-row input[type="text"] { width: 100%; }
+    .prefs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+      margin-top: 4px;
+    }
+    .prefs select, .prefs input { width: 100%; }
+    .checkline {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
     }
     code { color: #b7d7ff; }
   </style>
@@ -110,6 +180,7 @@
     （默认 <code>ws://127.0.0.1:17890</code>）调用 <code>plugin.klyrics</code>，读取面板样式与歌词并绘制。
     请先启动 foobar2000，安装 Zero Bus，并在「工具 → 快乐歌词 → Zero Bus 服务」打开开关。
     在画布上<strong>拖拽</strong>歌词可预览并跳转播放进度；<strong>右键</strong>打开与面板对齐的菜单（仅含已实现接口的项）。
+    下方可查询 foobar2000 里的内嵌歌词面板，并改<strong>指定面板</strong>自己的偏好（不是全局面板模板）。
   </p>
 
   <div class="toolbar">
@@ -125,18 +196,292 @@
     <button type="button" id="apply">应用并连接</button>
   </div>
 
-  <div class="stage">
-    <canvas id="lyric" width="420" height="560"></canvas>
+  <div class="layout">
+    <div>
+      <div class="stage">
+        <canvas id="lyric" width="420" height="560"></canvas>
+      </div>
+      <div id="status">尚未连接</div>
+    </div>
+
+    <section class="panel-card">
+      <h2>指定歌词面板</h2>
+      <p class="hint">列出当前活着的内嵌面板。选中一块后读取它的生效样式，再把下面的字段作为补丁写回去。跟随模板会清掉私有样式，名字保留。</p>
+      <div class="panel-row">
+        <label>面板
+          <select id="panel-pick"></select>
+        </label>
+        <button type="button" id="panel-refresh" class="ghost">刷新</button>
+        <button type="button" id="panel-current" class="ghost">当前</button>
+      </div>
+      <div class="panel-row">
+        <label>名字
+          <input id="panel-name" type="text" maxlength="64" placeholder="空表示未命名" />
+        </label>
+        <button type="button" id="panel-rename" class="ghost">改名</button>
+      </div>
+      <div class="prefs">
+        <label>背景
+          <select id="pref-bg-mode">
+            <option value="theme">主题</option>
+            <option value="color">纯色</option>
+            <option value="transparent">透明</option>
+            <option value="image">图片</option>
+          </select>
+        </label>
+        <label>背景色
+          <input id="pref-bg" type="color" value="#1a1a22" />
+        </label>
+        <label>文字
+          <input id="pref-text" type="color" value="#cccccc" />
+        </label>
+        <label>当前行
+          <input id="pref-highlight" type="color" value="#ffdc50" />
+        </label>
+        <label>已唱
+          <input id="pref-passed" type="color" value="#888888" />
+        </label>
+        <label>字号
+          <input id="pref-font-size" type="number" min="8" max="96" value="14" />
+        </label>
+        <label>滚动
+          <select id="pref-scroll">
+            <option value="smooth">平滑</option>
+            <option value="line">逐行</option>
+          </select>
+        </label>
+        <label>对齐
+          <select id="pref-align">
+            <option value="0">左 / 上</option>
+            <option value="1">中</option>
+            <option value="2">右 / 下</option>
+          </select>
+        </label>
+        <label>行距
+          <input id="pref-spacing" type="number" min="0" max="80" value="4" />
+        </label>
+        <label class="checkline">
+          <input id="pref-vertical" type="checkbox" />
+          竖排
+        </label>
+        <label class="checkline">
+          <input id="pref-karaoke" type="checkbox" />
+          卡拉 OK
+        </label>
+        <label class="checkline">
+          <input id="pref-wrap" type="checkbox" />
+          自动换行
+        </label>
+      </div>
+      <div class="panel-row" style="margin-top:12px">
+        <button type="button" id="panel-apply">应用到此面板</button>
+        <button type="button" id="panel-clear" class="ghost">跟随全局模板</button>
+      </div>
+      <div id="panel-msg">连接后列出面板</div>
+    </section>
   </div>
-  <div id="status">尚未连接</div>
 
   <script src="klyrics_client.js"></script>
   <script src="klyrics.js"></script>
   <script>
     (function () {
       var panel = null;
+      var panels = [];
       var canvas = document.getElementById("lyric");
       var statusEl = document.getElementById("status");
+      var pick = document.getElementById("panel-pick");
+      var msgEl = document.getElementById("panel-msg");
+
+      function client() {
+        return panel && panel.client;
+      }
+
+      function say(text) {
+        msgEl.textContent = text;
+      }
+
+      function explain(err) {
+        var msg = String(err && err.message ? err.message : err);
+        var map = {
+          "panel not found": "找不到这块面板",
+          "no current panel": "没有当前面板（点过一块，或只留一块）",
+          "duplicate name": "名字已被另一块面板占用",
+          "name too long": "名字超过 64 字节",
+          "invalid style": "样式无效",
+          "invalid font": "字体名无效",
+          "未连接": "尚未连上 Zero Bus"
+        };
+        return map[msg] || msg;
+      }
+
+      function selected() {
+        var id = parseInt(pick.value, 10) || 0;
+        for (var i = 0; i < panels.length; i++) {
+          if (panels[i].id === id) return panels[i];
+        }
+        return null;
+      }
+
+      function panelTitle(rec) {
+        var name = rec.name ? rec.name : "#" + rec.id;
+        var bits = [rec.kind || ""];
+        bits.push(rec.custom ? "自定义" : "跟随模板");
+        if (rec.current) bits.push("当前");
+        return name + " · " + bits.join(" · ");
+      }
+
+      function fillPick(preferId) {
+        pick.innerHTML = "";
+        if (!panels.length) {
+          var empty = document.createElement("option");
+          empty.value = "";
+          empty.textContent = "（没有内嵌歌词面板）";
+          pick.appendChild(empty);
+        } else {
+          for (var i = 0; i < panels.length; i++) {
+            var opt = document.createElement("option");
+            opt.value = String(panels[i].id);
+            opt.textContent = panelTitle(panels[i]);
+            pick.appendChild(opt);
+          }
+        }
+        if (preferId) pick.value = String(preferId);
+        var rec = selected();
+        document.getElementById("panel-name").value = rec && rec.name ? rec.name : "";
+      }
+
+      function colorOr(value, fallback) {
+        return /^#[0-9a-fA-F]{6}$/.test(value || "") ? value : fallback;
+      }
+
+      function fillStyle(style) {
+        style = style || {};
+        document.getElementById("pref-bg-mode").value = style.bg_mode || "color";
+        document.getElementById("pref-bg").value = colorOr(style.bg, "#1a1a22");
+        document.getElementById("pref-text").value = colorOr(style.text, "#cccccc");
+        document.getElementById("pref-highlight").value = colorOr(style.highlight, "#ffdc50");
+        document.getElementById("pref-passed").value = colorOr(style.passed, "#888888");
+        document.getElementById("pref-font-size").value = style.font_size || 14;
+        document.getElementById("pref-scroll").value = style.scroll_mode === "smooth" ? "smooth" : "line";
+        document.getElementById("pref-align").value = String(style.align | 0);
+        document.getElementById("pref-spacing").value = style.line_spacing | 0;
+        document.getElementById("pref-vertical").checked = style.vertical === 1;
+        document.getElementById("pref-karaoke").checked = !!style.karaoke;
+        document.getElementById("pref-wrap").checked = style.wrap !== false;
+      }
+
+      function patchFromForm() {
+        return {
+          bg_mode: document.getElementById("pref-bg-mode").value,
+          bg: document.getElementById("pref-bg").value,
+          text: document.getElementById("pref-text").value,
+          highlight: document.getElementById("pref-highlight").value,
+          passed: document.getElementById("pref-passed").value,
+          font_size: parseInt(document.getElementById("pref-font-size").value, 10) || 14,
+          scroll_mode: document.getElementById("pref-scroll").value,
+          align: parseInt(document.getElementById("pref-align").value, 10) || 0,
+          line_spacing: parseInt(document.getElementById("pref-spacing").value, 10) || 0,
+          vertical: document.getElementById("pref-vertical").checked ? 1 : 0,
+          karaoke: document.getElementById("pref-karaoke").checked,
+          wrap: document.getElementById("pref-wrap").checked
+        };
+      }
+
+      function loadStyle(rec) {
+        var api = client();
+        if (!api || !rec) return Promise.resolve();
+        return api.getPanelInstanceStyle(rec.id, rec.name).then(function (msg) {
+          fillStyle(msg.style);
+          say((rec.custom ? "自定义样式" : "正在跟随全局模板") + " · " + panelTitle(rec));
+        });
+      }
+
+      function refreshPanels(preferId) {
+        var api = client();
+        if (!api) {
+          say("尚未连接");
+          return Promise.resolve();
+        }
+        return api.listPanels().then(function (list) {
+          panels = list;
+          if (!preferId) {
+            var cur = selected();
+            preferId = cur ? cur.id : 0;
+          }
+          if (!preferId) {
+            for (var i = 0; i < panels.length; i++) {
+              if (panels[i].current) preferId = panels[i].id;
+            }
+          }
+          if (!preferId && panels.length) preferId = panels[0].id;
+          fillPick(preferId);
+          var rec = selected();
+          if (!rec) {
+            say(panels.length ? "请选择一块面板" : "布局里还没有内嵌歌词面板");
+            return null;
+          }
+          return loadStyle(rec);
+        }).catch(function (err) {
+          say(explain(err));
+        });
+      }
+
+      pick.addEventListener("change", function () {
+        var rec = selected();
+        document.getElementById("panel-name").value = rec && rec.name ? rec.name : "";
+        loadStyle(rec).catch(function (err) { say(explain(err)); });
+      });
+
+      document.getElementById("panel-refresh").addEventListener("click", function () {
+        refreshPanels(0).catch(function (err) { say(explain(err)); });
+      });
+
+      document.getElementById("panel-current").addEventListener("click", function () {
+        var api = client();
+        if (!api) return;
+        api.currentPanel().then(function (rec) {
+          return refreshPanels(rec && rec.id);
+        }).catch(function (err) {
+          say(explain(err));
+        });
+      });
+
+      document.getElementById("panel-rename").addEventListener("click", function () {
+        var api = client();
+        var rec = selected();
+        if (!api || !rec) return;
+        var next = document.getElementById("panel-name").value.trim();
+        api.setPanelName(rec.id, rec.name, next).then(function () {
+          say(next ? "已改名为 " + next : "已清除名字");
+          return refreshPanels(rec.id);
+        }).catch(function (err) {
+          say(explain(err));
+        });
+      });
+
+      document.getElementById("panel-apply").addEventListener("click", function () {
+        var api = client();
+        var rec = selected();
+        if (!api || !rec) return;
+        api.setPanelInstanceStyle(rec.id, rec.name, patchFromForm()).then(function () {
+          say("已写入 " + panelTitle(rec));
+          return refreshPanels(rec.id);
+        }).catch(function (err) {
+          say(explain(err));
+        });
+      });
+
+      document.getElementById("panel-clear").addEventListener("click", function () {
+        var api = client();
+        var rec = selected();
+        if (!api || !rec) return;
+        api.clearPanelInstanceStyle(rec.id, rec.name).then(function () {
+          say("已改回跟随全局模板");
+          return refreshPanels(rec.id);
+        }).catch(function (err) {
+          say(explain(err));
+        });
+      });
 
       function start() {
         var width = Math.max(120, parseInt(document.getElementById("width").value, 10) || 420);
@@ -149,6 +494,9 @@
           panel.destroy();
           panel = null;
         }
+        panels = [];
+        fillPick(0);
+        say("连接后列出面板");
         panel = Klyrics.mount(canvas, {
           width: width,
           height: height,
@@ -156,6 +504,13 @@
           onStatus: function (text) {
             statusEl.textContent = text;
           },
+          onReady: function () {
+            refreshPanels(0);
+          },
+          onPanelStyle: function (msg) {
+            var rec = selected();
+            if (rec && msg && msg.id === rec.id) refreshPanels(rec.id);
+          }
         });
       }
 

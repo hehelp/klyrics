@@ -87,6 +87,8 @@
     this.url = options.url || DEFAULT_URL;
     this.onStatus = typeof options.onStatus === "function" ? options.onStatus : function () {};
     this.onChange = typeof options.onChange === "function" ? options.onChange : function () {};
+    this.onReady = typeof options.onReady === "function" ? options.onReady : function () {};
+    this.onPanelStyle = typeof options.onPanelStyle === "function" ? options.onPanelStyle : function () {};
 
     this.style = mergeStyle(null);
     this.lines = [];
@@ -201,6 +203,10 @@
       self._emitChange();
       return true;
     }
+    if (msg.event === "panel_style_changed") {
+      self.onPanelStyle(msg);
+      return true;
+    }
     if (msg.event === "lyrics_updated") {
       if (self._dragMoved) {
         const idx = typeof msg.index === "number" ? msg.index : -1;
@@ -259,6 +265,7 @@
         })
         .then(function () {
           self._setStatus("就绪（拖拽调进度；右键打开菜单）");
+          self.onReady();
           self._emitChange();
         })
         .catch(function (err) {
@@ -369,6 +376,46 @@
         reject(e);
       }
     });
+  };
+
+  KlyricsClient.prototype.listPanels = function () {
+    return this.request({ cmd: "list_panels" }).then(function (msg) {
+      return Array.isArray(msg.panels) ? msg.panels : [];
+    });
+  };
+
+  KlyricsClient.prototype.currentPanel = function () {
+    return this.request({ cmd: "current_panel" }).then(function (msg) {
+      return msg.panel || null;
+    });
+  };
+
+  function panelAddress(id, name) {
+    const payload = {};
+    const named = name != null ? String(name) : "";
+    if (named) payload.name = named;
+    else if (id) payload.id = id | 0;
+    return payload;
+  }
+
+  KlyricsClient.prototype.getPanelInstanceStyle = function (id, name) {
+    return this.request(Object.assign({ cmd: "get_panel_instance_style" }, panelAddress(id, name)));
+  };
+
+  KlyricsClient.prototype.setPanelInstanceStyle = function (id, name, style) {
+    return this.request(
+      Object.assign({ cmd: "set_panel_instance_style", style: style || {} }, panelAddress(id, name))
+    );
+  };
+
+  KlyricsClient.prototype.clearPanelInstanceStyle = function (id, name) {
+    return this.request(Object.assign({ cmd: "clear_panel_instance_style" }, panelAddress(id, name)));
+  };
+
+  KlyricsClient.prototype.setPanelName = function (id, name, newName) {
+    return this.request(
+      Object.assign({ cmd: "set_panel_name", new_name: newName == null ? "" : String(newName) }, panelAddress(id, name))
+    );
   };
 
   KlyricsClient.prototype.refreshUiState = function () {

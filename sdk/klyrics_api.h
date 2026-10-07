@@ -62,6 +62,13 @@ public:
 
     // 面板模板 / 歌词图层等外观配置已改变。style_json 与 get_panel_style_json 相同；下次推送前失效。
     virtual void on_config_changed(const char* style_json) { (void)style_json; }
+
+    // 某一块内嵌面板自己的样式变了。style_json 与 get_panel_instance_style_json 相同；下次推送前失效。
+    virtual void on_panel_style_changed(int id, const char* name, const char* style_json) {
+        (void)id;
+        (void)name;
+        (void)style_json;
+    }
 };
 
 // ============================================================================
@@ -113,6 +120,14 @@ public:
     virtual bool seek(double time_sec) = 0;
     virtual double playback_position() const = 0;
     virtual double playback_length() const = 0;
+
+    // 内嵌面板实例。id 为 0 且 name 为空表示当前实例。返回的字符串下次调用同一个方法后失效。
+    virtual const char* list_panels_json() = 0;
+    virtual const char* current_panel_json() = 0;
+    virtual const char* get_panel_instance_style_json(int id, const char* name) = 0;
+    virtual bool set_panel_instance_style(int id, const char* name, const char* patch_json) = 0;
+    virtual bool clear_panel_instance_style(int id, const char* name) = 0;
+    virtual bool set_panel_name(int id, const char* name, const char* new_name) = 0;
 };
 
 // COM / ActiveX：ProgID = Klyrics.Engine（内嵌类型库，供 JSplitter 等调用 GetTypeInfo）

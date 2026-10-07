@@ -102,6 +102,12 @@ function check_klyrics(engine) {
         "SetTaskbarLocked",
         "TaskbarVisible",
         "GetPanelStyle",
+        "ListPanels",
+        "CurrentPanel",
+        "GetPanelInstanceStyle",
+        "SetPanelInstanceStyle",
+        "ClearPanelInstanceStyle",
+        "SetPanelName",
         "Seek",
         "GetPlaybackPosition",
         "GetPlaybackLength"
@@ -156,6 +162,14 @@ function check_klyrics(engine) {
         var json = engine.GetPanelStyle();
         check("GetPanelStyle()", isStr(json) && json.length > 0 && json.charAt(0) === "{", "len=" + json.length);
         g_style = json;
+    });
+    run("ListPanels", function () {
+        var json = engine.ListPanels();
+        check("ListPanels()", isStr(json) && json.charAt(0) === "[", json);
+    });
+    run("CurrentPanel", function () {
+        var json = engine.CurrentPanel();
+        check("CurrentPanel()", isStr(json), json.length > 0 ? json : '""');
     });
 
     run("GetPlaybackPosition", function () {
