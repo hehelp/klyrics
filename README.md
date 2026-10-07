@@ -4,11 +4,18 @@
 
 A visual lyrics component for foobar2000: an embedded panel, transparent desktop lyrics, and Windows taskbar lyrics. Lyrics come from local `.lrc` / `.ttml` files and the In-use sources. Factory order starts with NetEase / Kugou / QQ **word-level** community scripts, then [LRCLIB](https://lrclib.net), Kugou, QQ, and NetEase line LRC. Embedded tags, amlldb TTML, and YouTube captions start in Available. Sources not added are not searched. Supports standard LRC, Enhanced LRC (inline `<>` word times), and Apple / AMLL lyric TTML (furigana, translation, and romaji are independently toggled from the panel menu); karaoke clips to the current glyph when word timestamps exist. Chinese display name **快乐歌词**.
 
-File versions: Windows `2.26.10.6`, macOS `2.26.10.6`. Product version `2.0.0.20`.
+File versions: Windows `2.26.10.7`, macOS `2.26.10.7`. Product version `2.0.0.21`.
 
 This repository hosts **release binaries** and open community JS scripts. The component source is not published. Get the installers from the repo **Releases** page.
 
 ## Updates
+
+
+
+### 2.0.0.21 (2026-10-07)
+
+- Windows:Render lyrics using a separate thread
+- Windows: a preferences page taller than its window gets a vertical scrollbar, so the bottom of the panel and floating-lyrics pages is no longer cut off
 
 
 
